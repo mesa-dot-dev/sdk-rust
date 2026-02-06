@@ -1,10 +1,10 @@
 [package]
 name = "mesa_dev_oapi"
 version = "1.0.0"
-authors = ["OpenAPI Generator team and contributors"]
-description = "Depot HTTP API v1"
+authors = ["Marko Vejnovic <marko@mesa.dev>"]
+description = "Mesa's OpenAPI-generated Rust SDK."
 # Override this license by providing a License Object in the OpenAPI.
-license = "Unlicense"
+license = "MIT"
 edition = "2021"
 
 [dependencies]
