@@ -1,5 +1,5 @@
 [package]
-name = "mesa_dev"
+name = "mesa_dev_oapi"
 version = "1.0.0"
 authors = ["OpenAPI Generator team and contributors"]
 description = "Depot HTTP API v1"
