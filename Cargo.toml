@@ -1,55 +1,15 @@
 [package]
 name = "mesa-dev"
-version = "0.1.0"
-edition = "2024"
-description = "Rust SDK for the mesa.dev API"
+version = "1.0.0"
+edition = "2021"
 license = "MIT"
-repository = "https://github.com/mesa-dot-dev/sdk-rust"
-keywords = ["mesa", "git", "api", "sdk"]
-categories = ["api-bindings", "development-tools"]
-
-[features]
-default = ["reqwest-client"]
-reqwest-client = ["dep:reqwest"]
-ureq-client = ["dep:ureq"]
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-thiserror = "2"
-http = "1"
-bytes = "1"
+bytes = "1.9"
+chrono = { version = "0.4", default-features=false, features = ["serde"] }
 futures-core = "0.3"
-
-reqwest = { version = "0.12", features = ["json"], optional = true }
-ureq = { version = "3", optional = true }
-
-[dev-dependencies]
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-uuid = { version = "1", features = ["v4"] }
-test-context = "0.5"
-futures = "0.3"
-
-[lints.clippy]
-all = { level = "deny", priority = -1 }
-pedantic = { level = "deny", priority = -1 }
-cargo = { level = "deny", priority = -1 }
-multiple_crate_versions = "allow"
-
-unwrap_used = "deny"
-expect_used = "deny"
-panic = "deny"
-todo = "deny"
-unimplemented = "deny"
-dbg_macro = "deny"
-print_stdout = "deny"
-print_stderr = "deny"
-
-[lints.rust]
-unsafe_code = "forbid"
-missing_docs = "deny"
-rust_2018_idioms = { level = "deny", priority = -1 }
-trivial_casts = "deny"
-trivial_numeric_casts = "deny"
-unused_lifetimes = "deny"
-unused_qualifications = "deny"
+percent-encoding = "2.3"
+reqwest = { version = "0.13", default-features=false, features = ["json", "query", "stream"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_urlencoded = "0.7"
