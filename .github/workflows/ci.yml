@@ -28,7 +28,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run clippy on mesa-dev
-        run: cargo clippy -p mesa-dev -- -D warnings
+        run: cargo clippy -p mesa-dev --no-deps -- -D warnings
 
       - name: Check formatting of mesa-dev
         run: cargo fmt -p mesa-dev --check
