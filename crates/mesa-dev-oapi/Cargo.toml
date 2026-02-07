@@ -1,4 +1,8 @@
 [package]
+categories = ["api-bindings", "development-tools"]
+keywords = ["mesa", "git", "api", "sdk"]
+repository = "https://github.com/mesa-dot-dev/rust-sdk"
+readme = "README.md"
 name = "mesa_dev_oapi"
 version = "1.0.0"
 authors = ["Marko Vejnovic <marko@mesa.dev>"]
