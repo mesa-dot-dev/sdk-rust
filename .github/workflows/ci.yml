@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - staged
+
+permissions:
+  contents: write
+
+jobs:
+  lint-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: staged
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run clippy on mesa-dev
+        run: cargo clippy -p mesa-dev -- -D warnings
+
+      - name: Check formatting of mesa-dev
+        run: cargo fmt -p mesa-dev --check
+
+      - name: Bump minor version
+        id: bump
+        run: |
+          CURRENT_VERSION=$(grep '^version' crates/mesa-dev/Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "Current version: ${CURRENT_VERSION}"
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          NEW_MINOR=$((MINOR + 1))
+          NEW_VERSION="${MAJOR}.${NEW_MINOR}.0"
+          echo "New version: ${NEW_VERSION}"
+
+          sed -i "s/^version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" crates/mesa-dev/Cargo.toml
+
+          # Update Cargo.lock to reflect the new version
+          cargo check -p mesa-dev
+
+          echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push version bump
+        run: |
+          git config user.name "mesa-ci[bot]"
+          git config user.email "ci-bot@mesa.dev"
+
+          git add crates/mesa-dev/Cargo.toml Cargo.lock
+          git commit -m "Bump mesa-dev to ${{ steps.bump.outputs.new_version }}"
+          git push origin staged
+
+      - name: Fast-forward merge staged into main
+        run: |
+          git checkout main
+          git merge --ff-only staged
+          git push origin main
