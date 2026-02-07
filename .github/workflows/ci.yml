@@ -66,3 +66,18 @@ jobs:
           git checkout main
           git merge --ff-only staged
           git push origin main
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ always() && (needs.lint-and-release.result == 'failure' || needs.lint-and-release.result == 'timed_out') }}
+    needs:
+      - lint-and-release
+    steps:
+    - uses: actions/checkout@v2
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_USERNAME: mesa-gh
+        SLACK_TITLE: Workflow ${{ needs.lint-and-release.result }}
+        MSG_MINIMAL: actions url
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
