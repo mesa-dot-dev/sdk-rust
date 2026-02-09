@@ -15,6 +15,8 @@ use serde::{Deserialize, Serialize};
 pub struct PatchByOrgByRepoRequest {
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    #[serde(rename = "default_branch", skip_serializing_if = "Option::is_none")]
+    pub default_branch: Option<String>,
     #[serde(rename = "upstream", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub upstream: Option<Option<models::PatchByOrgByRepoRequestUpstream>>,
 }
@@ -23,6 +25,7 @@ impl PatchByOrgByRepoRequest {
     pub fn new() -> PatchByOrgByRepoRequest {
         PatchByOrgByRepoRequest {
             name: None,
+            default_branch: None,
             upstream: None,
         }
     }

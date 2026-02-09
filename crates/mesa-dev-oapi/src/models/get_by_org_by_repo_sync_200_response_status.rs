@@ -18,6 +18,7 @@ use serde::{Deserialize, Serialize};
 pub enum GetByOrgByRepoSync200ResponseStatus {
     GetByOrgByRepoSync200ResponseStatusOneOf(models::GetByOrgByRepoSync200ResponseStatusOneOf),
     GetByOrgByRepoSync200ResponseStatusOneOf1(models::GetByOrgByRepoSync200ResponseStatusOneOf1),
+    GetByOrgByRepoSync200ResponseStatusOneOf2(models::GetByOrgByRepoSync200ResponseStatusOneOf2),
 }
 
 impl Default for GetByOrgByRepoSync200ResponseStatus {
@@ -30,6 +31,8 @@ impl Default for GetByOrgByRepoSync200ResponseStatus {
 pub enum Type {
     #[serde(rename = "ok")]
     Ok,
+    #[serde(rename = "syncing")]
+    Syncing,
     #[serde(rename = "error")]
     Error,
 }

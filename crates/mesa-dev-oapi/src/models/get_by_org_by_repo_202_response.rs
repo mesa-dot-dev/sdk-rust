@@ -12,7 +12,7 @@ use crate::models;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct GetByOrgRepos200ResponseReposInner {
+pub struct GetByOrgByRepo202Response {
     #[serde(rename = "id", deserialize_with = "Option::deserialize")]
     pub id: Option<String>,
     #[serde(rename = "org", deserialize_with = "Option::deserialize")]
@@ -31,11 +31,13 @@ pub struct GetByOrgRepos200ResponseReposInner {
     pub created_at: Option<String>,
     #[serde(rename = "upstream", deserialize_with = "Option::deserialize")]
     pub upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>,
+    #[serde(rename = "status")]
+    pub status: Status,
 }
 
-impl GetByOrgRepos200ResponseReposInner {
-    pub fn new(id: Option<String>, org: Option<String>, name: Option<String>, default_branch: Option<String>, head_sha: Option<String>, size_bytes: f64, last_push_at: Option<String>, created_at: Option<String>, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> GetByOrgRepos200ResponseReposInner {
-        GetByOrgRepos200ResponseReposInner {
+impl GetByOrgByRepo202Response {
+    pub fn new(id: Option<String>, org: Option<String>, name: Option<String>, default_branch: Option<String>, head_sha: Option<String>, size_bytes: f64, last_push_at: Option<String>, created_at: Option<String>, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>, status: Status) -> GetByOrgByRepo202Response {
+        GetByOrgByRepo202Response {
             id,
             org,
             name,
@@ -45,7 +47,20 @@ impl GetByOrgRepos200ResponseReposInner {
             last_push_at,
             created_at,
             upstream,
+            status,
         }
+    }
+}
+/// 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+pub enum Status {
+    #[serde(rename = "syncing")]
+    Syncing,
+}
+
+impl Default for Status {
+    fn default() -> Status {
+        Self::Syncing
     }
 }
 

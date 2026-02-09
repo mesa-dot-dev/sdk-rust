@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **org** | **String** |  | 
 **name** | **String** |  | 
 **default_branch** | **String** |  | 
+**head_sha** | Option<**String**> |  | 
 **size_bytes** | **f64** |  | 
 **last_push_at** | Option<**String**> |  | 
 **created_at** | **String** |  | 

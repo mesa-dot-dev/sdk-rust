@@ -11,35 +11,31 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// GetByOrgByRepoSync200ResponseStatusOneOf1 : The last sync failed with an error.
+/// GetByOrgByRepoSync200ResponseStatusOneOf1 : A sync is currently in progress.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GetByOrgByRepoSync200ResponseStatusOneOf1 {
     #[serde(rename = "type")]
     pub r#type: Type,
-    /// Error message from the last failed sync attempt
-    #[serde(rename = "message")]
-    pub message: String,
 }
 
 impl GetByOrgByRepoSync200ResponseStatusOneOf1 {
-    /// The last sync failed with an error.
-    pub fn new(r#type: Type, message: String) -> GetByOrgByRepoSync200ResponseStatusOneOf1 {
+    /// A sync is currently in progress.
+    pub fn new(r#type: Type) -> GetByOrgByRepoSync200ResponseStatusOneOf1 {
         GetByOrgByRepoSync200ResponseStatusOneOf1 {
             r#type,
-            message,
         }
     }
 }
 /// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum Type {
-    #[serde(rename = "error")]
-    Error,
+    #[serde(rename = "syncing")]
+    Syncing,
 }
 
 impl Default for Type {
     fn default() -> Type {
-        Self::Error
+        Self::Syncing
     }
 }
 
