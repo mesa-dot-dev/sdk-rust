@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/mesa-dot-dev/sdk-rust"
 keywords = ["mesa", "git", "api", "sdk"]
 categories = ["api-bindings", "development-tools"]
-readme = "README.md"
+readme = "../../README.md"
 
 [dependencies]
 mesa_dev_oapi = { version = "1.6.1", path = "../mesa-dev-oapi" }
