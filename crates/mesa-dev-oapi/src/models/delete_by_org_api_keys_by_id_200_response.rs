@@ -14,26 +14,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DeleteByOrgApiKeysById200Response {
     #[serde(rename = "success")]
-    pub success: Success,
+    pub success: bool,
 }
 
 impl DeleteByOrgApiKeysById200Response {
-    pub fn new(success: Success) -> DeleteByOrgApiKeysById200Response {
+    pub fn new(success: bool) -> DeleteByOrgApiKeysById200Response {
         DeleteByOrgApiKeysById200Response {
             success,
         }
-    }
-}
-/// 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum Success {
-    #[serde(rename = "true")]
-    True,
-}
-
-impl Default for Success {
-    fn default() -> Success {
-        Self::True
     }
 }
 
