@@ -64,6 +64,9 @@ jobs:
 
           sed -i "s/^version = \"${OAPI_CURRENT_VERSION}\"/version = \"${OAPI_NEW_VERSION}\"/" crates/mesa-dev-oapi/Cargo.toml
 
+          # Update mesa_dev_oapi version reference in mesa-dev's Cargo.toml
+          sed -i "s/mesa_dev_oapi = { version = \"${OAPI_CURRENT_VERSION}\"/mesa_dev_oapi = { version = \"${OAPI_NEW_VERSION}\"/" crates/mesa-dev/Cargo.toml
+
           # Update Cargo.lock to reflect the new versions
           cargo check -p mesa-dev
 
