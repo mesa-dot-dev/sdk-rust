@@ -1,0 +1,47 @@
+name: Publish to crates.io
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Publish mesa_dev_oapi
+        run: cargo publish -p mesa_dev_oapi || true
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_API_KEY }}
+
+      - name: Wait for crates.io index update
+        run: sleep 30
+
+      - name: Publish mesa-dev
+        run: cargo publish -p mesa-dev
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_API_KEY }}
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ always() && (needs.publish.result == 'failure' || needs.publish.result == 'timed_out') }}
+    needs:
+      - publish
+    steps:
+      - uses: actions/checkout@v2
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_USERNAME: mesa-gh
+          SLACK_TITLE: Publish workflow ${{ needs.publish.result }}
+          MSG_MINIMAL: actions url
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
