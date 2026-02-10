@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**r#type** | **String** |  | 
+**r#type** | **Type** |  (enum: dir) | 
 **name** | Option<**String**> |  | 
 **path** | Option<**String**> |  | 
 **sha** | Option<**String**> |  | 

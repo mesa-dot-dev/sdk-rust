@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **path** | Option<**String**> |  | 
-**status** | **String** |  | 
+**status** | **Status** |  (enum: A, M, D, R, C, T) | 
 **old_path** | Option<**String**> |  | [optional]
 **bytes** | Option<**f64**> |  | [optional]
 **is_eof** | Option<**bool**> |  | [optional]

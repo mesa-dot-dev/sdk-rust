@@ -47,11 +47,11 @@ pub enum PostByOrgByRepoLfsObjectsDownloadError {
 /// Request pre-signed URLs to upload large files to LFS storage. After uploading, use the commit endpoint with LFS file references to create commits.
 pub async fn post_by_org_by_repo_lfs_objects(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_lfs_objects_request: Option<models::PostByOrgByRepoLfsObjectsRequest>) -> Result<models::PostByOrgByRepoLfsObjects200Response, Error<PostByOrgByRepoLfsObjectsError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_post_by_org_by_repo_lfs_objects_request = post_by_org_by_repo_lfs_objects_request;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_body_post_by_org_by_repo_lfs_objects_request = post_by_org_by_repo_lfs_objects_request;
 
-    let uri_str = format!("{}/{org}/{repo}/lfs/objects", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/lfs/objects", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -60,7 +60,7 @@ pub async fn post_by_org_by_repo_lfs_objects(configuration: &configuration::Conf
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_post_by_org_by_repo_lfs_objects_request);
+    req_builder = req_builder.json(&p_body_post_by_org_by_repo_lfs_objects_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -76,7 +76,7 @@ pub async fn post_by_org_by_repo_lfs_objects(configuration: &configuration::Conf
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgByRepoLfsObjects200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgByRepoLfsObjects200Response`")))),
         }
@@ -90,11 +90,11 @@ pub async fn post_by_org_by_repo_lfs_objects(configuration: &configuration::Conf
 /// Request pre-signed URLs to download large files from LFS storage.
 pub async fn post_by_org_by_repo_lfs_objects_download(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_lfs_objects_request: Option<models::PostByOrgByRepoLfsObjectsRequest>) -> Result<models::PostByOrgByRepoLfsObjects200Response, Error<PostByOrgByRepoLfsObjectsDownloadError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_post_by_org_by_repo_lfs_objects_request = post_by_org_by_repo_lfs_objects_request;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_body_post_by_org_by_repo_lfs_objects_request = post_by_org_by_repo_lfs_objects_request;
 
-    let uri_str = format!("{}/{org}/{repo}/lfs/objects/download", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/lfs/objects/download", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -103,7 +103,7 @@ pub async fn post_by_org_by_repo_lfs_objects_download(configuration: &configurat
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_post_by_org_by_repo_lfs_objects_request);
+    req_builder = req_builder.json(&p_body_post_by_org_by_repo_lfs_objects_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -119,7 +119,7 @@ pub async fn post_by_org_by_repo_lfs_objects_download(configuration: &configurat
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgByRepoLfsObjects200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgByRepoLfsObjects200Response`")))),
         }

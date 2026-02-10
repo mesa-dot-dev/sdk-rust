@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **uri** | **String** | URL of the upstream repository | 
-**autosync** | Option<[**models::GetByOrgRepos200ResponseReposInnerUpstreamAutosync**](getByOrgRepos_200_response_repos_inner_upstream_autosync.md)> |  | 
+**autosync** | Option<[**models::GetByOrgRepos200ResponseReposInnerUpstreamAutosync**](GetByOrgRepos200ResponseReposInnerUpstreamAutosync.md)> |  | 
 **last_sync_attempt** | Option<**String**> |  | 
 **last_sync_success** | Option<**String**> |  | 
 **last_sync_error** | Option<**String**> |  | 

@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | Option<**String**> |  | 
 **url** | Option<**String**> |  | 
-**events** | **Vec<String>** |  | 
+**events** | **Vec<Events>** |  (enum: push) | 
 **branches** | Option<**Vec<String>**> |  | 
 **globs** | Option<**Vec<String>**> |  | 
 **created_at** | Option<**String**> |  | 

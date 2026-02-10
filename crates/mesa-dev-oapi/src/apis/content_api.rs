@@ -33,22 +33,22 @@ pub enum GetByOrgByRepoContentError {
 /// Get file content or directory listing at a path. Use Accept: application/json for the JSON union response, or Accept: application/octet-stream for raw file bytes. Directory + octet-stream requests return 406 Not Acceptable.
 pub async fn get_by_org_by_repo_content(configuration: &configuration::Configuration, org: &str, repo: &str, r#ref: Option<&str>, path: Option<&str>, depth: Option<u64>) -> Result<models::GetByOrgByRepoContent200Response, Error<GetByOrgByRepoContentError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_ref = r#ref;
-    let p_path = path;
-    let p_depth = depth;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_query_ref = r#ref;
+    let p_query_path = path;
+    let p_query_depth = depth;
 
-    let uri_str = format!("{}/{org}/{repo}/content", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/content", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = p_ref {
+    if let Some(ref param_value) = p_query_ref {
         req_builder = req_builder.query(&[("ref", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = p_path {
+    if let Some(ref param_value) = p_query_path {
         req_builder = req_builder.query(&[("path", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = p_depth {
+    if let Some(ref param_value) = p_query_depth {
         req_builder = req_builder.query(&[("depth", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -72,7 +72,7 @@ pub async fn get_by_org_by_repo_content(configuration: &configuration::Configura
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgByRepoContent200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgByRepoContent200Response`")))),
         }

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **download_url** | Option<**String**> |  | [optional]
 **expires_in** | Option<**f64**> |  | [optional]
 **exists** | **bool** |  | 
-**error** | Option<[**models::PostByOrgByRepoLfsObjects200ResponseObjectsInnerError**](postByOrgByRepoLfsObjects_200_response_objects_inner_error.md)> |  | [optional]
+**error** | Option<[**models::PostByOrgByRepoLfsObjects200ResponseObjectsInnerError**](PostByOrgByRepoLfsObjects200ResponseObjectsInnerError.md)> |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

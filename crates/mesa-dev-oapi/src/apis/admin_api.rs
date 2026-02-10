@@ -61,10 +61,10 @@ pub enum PostByOrgApiKeysError {
 /// Revoke an API key by its ID
 pub async fn delete_by_org_api_keys_by_id(configuration: &configuration::Configuration, id: &str, org: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgApiKeysByIdError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_id = id;
-    let p_org = org;
+    let p_path_id = id;
+    let p_path_org = org;
 
-    let uri_str = format!("{}/{org}/api-keys/{id}", configuration.base_path, id=crate::apis::urlencode(p_id), org=crate::apis::urlencode(p_org));
+    let uri_str = format!("{}/{org}/api-keys/{id}", configuration.base_path, id=crate::apis::urlencode(p_path_id), org=crate::apis::urlencode(p_path_org));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -88,7 +88,7 @@ pub async fn delete_by_org_api_keys_by_id(configuration: &configuration::Configu
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`")))),
         }
@@ -102,9 +102,9 @@ pub async fn delete_by_org_api_keys_by_id(configuration: &configuration::Configu
 /// List all API keys for the organization (key values are not returned)
 pub async fn get_by_org_api_keys(configuration: &configuration::Configuration, org: &str) -> Result<models::GetByOrgApiKeys200Response, Error<GetByOrgApiKeysError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
+    let p_path_org = org;
 
-    let uri_str = format!("{}/{org}/api-keys", configuration.base_path, org=crate::apis::urlencode(p_org));
+    let uri_str = format!("{}/{org}/api-keys", configuration.base_path, org=crate::apis::urlencode(p_path_org));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -128,7 +128,7 @@ pub async fn get_by_org_api_keys(configuration: &configuration::Configuration, o
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgApiKeys200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgApiKeys200Response`")))),
         }
@@ -142,10 +142,10 @@ pub async fn get_by_org_api_keys(configuration: &configuration::Configuration, o
 /// Create a new API key for programmatic access
 pub async fn post_by_org_api_keys(configuration: &configuration::Configuration, org: &str, post_by_org_api_keys_request: Option<models::PostByOrgApiKeysRequest>) -> Result<models::PostByOrgApiKeys201Response, Error<PostByOrgApiKeysError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_post_by_org_api_keys_request = post_by_org_api_keys_request;
+    let p_path_org = org;
+    let p_body_post_by_org_api_keys_request = post_by_org_api_keys_request;
 
-    let uri_str = format!("{}/{org}/api-keys", configuration.base_path, org=crate::apis::urlencode(p_org));
+    let uri_str = format!("{}/{org}/api-keys", configuration.base_path, org=crate::apis::urlencode(p_path_org));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -154,7 +154,7 @@ pub async fn post_by_org_api_keys(configuration: &configuration::Configuration, 
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_post_by_org_api_keys_request);
+    req_builder = req_builder.json(&p_body_post_by_org_api_keys_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -170,7 +170,7 @@ pub async fn post_by_org_api_keys(configuration: &configuration::Configuration, 
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgApiKeys201Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgApiKeys201Response`")))),
         }

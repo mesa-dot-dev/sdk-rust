@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **next_cursor** | Option<**String**> |  | 
 **has_more** | **bool** |  | 
-**commits** | [**Vec<models::GetByOrgByRepoCommits200ResponseCommitsInner>**](getByOrgByRepoCommits_200_response_commits_inner.md) |  | 
+**commits** | [**Vec<models::GetByOrgByRepoCommits200ResponseCommitsInner>**](GetByOrgByRepoCommits200ResponseCommitsInner.md) |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

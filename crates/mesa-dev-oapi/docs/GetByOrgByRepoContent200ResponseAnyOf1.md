@@ -4,12 +4,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**r#type** | **String** |  | 
+**r#type** | **Type** |  (enum: symlink) | 
 **name** | Option<**String**> |  | 
 **path** | Option<**String**> |  | 
 **sha** | Option<**String**> |  | 
 **size** | **f64** |  | 
-**encoding** | **String** |  | 
+**encoding** | **Encoding** |  (enum: base64) | 
 **content** | Option<**String**> |  | 
 **executable** | **bool** |  | 
 **last_commit_at** | Option<**String**> |  | 

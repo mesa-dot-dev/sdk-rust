@@ -4,12 +4,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**r#type** | **String** |  | 
+**r#type** | **Type** |  (enum: dir) | 
 **name** | Option<**String**> |  | 
 **path** | Option<**String**> |  | 
 **sha** | Option<**String**> |  | 
 **child_count** | **i64** |  | 
-**entries** | [**Vec<models::GetByOrgByRepoContent200ResponseAnyOf2EntriesInner>**](getByOrgByRepoContent_200_response_anyOf_2_entries_inner.md) |  | 
+**entries** | [**Vec<models::GetByOrgByRepoContent200ResponseAnyOf2EntriesInner>**](GetByOrgByRepoContent200ResponseAnyOf2EntriesInner.md) |  | 
 **next_cursor** | Option<**String**> |  | 
 **has_more** | **bool** |  | 
 

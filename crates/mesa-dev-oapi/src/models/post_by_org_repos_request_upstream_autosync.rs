@@ -11,17 +11,25 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// PostByOrgReposRequestUpstreamAutosync : Optionally enable automatic sync from the upstream repository
-/// Optionally enable automatic sync from the upstream repository
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum PostByOrgReposRequestUpstreamAutosync {
-    PostByOrgReposRequestUpstreamAutosyncOneOf(models::PostByOrgReposRequestUpstreamAutosyncOneOf),
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PostByOrgReposRequestUpstreamAutosync {
+    #[serde(rename = "type")]
+    pub r#type: Type,
+    /// Polling period in seconds (60s to 24.8d)
+    #[serde(rename = "period")]
+    pub period: u32,
+    /// Conflict resolution strategy. \"none\" means sync will fail on conflicts.
+    #[serde(rename = "resolution_strategy", skip_serializing_if = "Option::is_none")]
+    pub resolution_strategy: Option<ResolutionStrategy>,
 }
 
-impl Default for PostByOrgReposRequestUpstreamAutosync {
-    fn default() -> Self {
-        Self::PostByOrgReposRequestUpstreamAutosyncOneOf(Default::default())
+impl PostByOrgReposRequestUpstreamAutosync {
+    pub fn new(r#type: Type, period: u32) -> PostByOrgReposRequestUpstreamAutosync {
+        PostByOrgReposRequestUpstreamAutosync {
+            r#type,
+            period,
+            resolution_strategy: None,
+        }
     }
 }
 /// 

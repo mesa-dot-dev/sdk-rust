@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**r#type** | **String** |  | 
+**r#type** | **Type** |  (enum: file, symlink, dir) | 
 **name** | **String** |  | 
 **path** | **String** |  | 
 **sha** | **String** |  | 

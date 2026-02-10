@@ -61,11 +61,11 @@ pub enum PostByOrgByRepoWebhooksError {
 /// Delete a webhook from a repository
 pub async fn delete_by_org_by_repo_webhooks_by_webhook_id(configuration: &configuration::Configuration, org: &str, repo: &str, webhook_id: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoWebhooksByWebhookIdError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_webhook_id = webhook_id;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_path_webhook_id = webhook_id;
 
-    let uri_str = format!("{}/{org}/{repo}/webhooks/{webhookId}", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo), webhookId=crate::apis::urlencode(p_webhook_id));
+    let uri_str = format!("{}/{org}/{repo}/webhooks/{webhookId}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), webhookId=crate::apis::urlencode(p_path_webhook_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -89,7 +89,7 @@ pub async fn delete_by_org_by_repo_webhooks_by_webhook_id(configuration: &config
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`")))),
         }
@@ -103,10 +103,10 @@ pub async fn delete_by_org_by_repo_webhooks_by_webhook_id(configuration: &config
 /// List webhooks for a repository
 pub async fn get_by_org_by_repo_webhooks(configuration: &configuration::Configuration, org: &str, repo: &str) -> Result<models::GetByOrgByRepoWebhooks200Response, Error<GetByOrgByRepoWebhooksError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
+    let p_path_org = org;
+    let p_path_repo = repo;
 
-    let uri_str = format!("{}/{org}/{repo}/webhooks", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/webhooks", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -130,7 +130,7 @@ pub async fn get_by_org_by_repo_webhooks(configuration: &configuration::Configur
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgByRepoWebhooks200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgByRepoWebhooks200Response`")))),
         }
@@ -144,11 +144,11 @@ pub async fn get_by_org_by_repo_webhooks(configuration: &configuration::Configur
 /// Create a webhook for a repository
 pub async fn post_by_org_by_repo_webhooks(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_webhooks_request: Option<models::PostByOrgByRepoWebhooksRequest>) -> Result<models::PostByOrgByRepoWebhooks201Response, Error<PostByOrgByRepoWebhooksError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_post_by_org_by_repo_webhooks_request = post_by_org_by_repo_webhooks_request;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_body_post_by_org_by_repo_webhooks_request = post_by_org_by_repo_webhooks_request;
 
-    let uri_str = format!("{}/{org}/{repo}/webhooks", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/webhooks", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -157,7 +157,7 @@ pub async fn post_by_org_by_repo_webhooks(configuration: &configuration::Configu
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_post_by_org_by_repo_webhooks_request);
+    req_builder = req_builder.json(&p_body_post_by_org_by_repo_webhooks_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -173,7 +173,7 @@ pub async fn post_by_org_by_repo_webhooks(configuration: &configuration::Configu
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgByRepoWebhooks201Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgByRepoWebhooks201Response`")))),
         }

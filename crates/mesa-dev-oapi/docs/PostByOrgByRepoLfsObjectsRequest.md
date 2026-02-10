@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**objects** | [**Vec<models::PostByOrgByRepoLfsObjectsRequestObjectsInner>**](postByOrgByRepoLfsObjects_request_objects_inner.md) |  | 
+**objects** | [**Vec<models::PostByOrgByRepoLfsObjectsRequestObjectsInner>**](PostByOrgByRepoLfsObjectsRequestObjectsInner.md) |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

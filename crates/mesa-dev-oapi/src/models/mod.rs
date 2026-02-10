@@ -142,5 +142,3 @@ pub mod post_by_org_repos_request_upstream;
 pub use self::post_by_org_repos_request_upstream::PostByOrgReposRequestUpstream;
 pub mod post_by_org_repos_request_upstream_autosync;
 pub use self::post_by_org_repos_request_upstream_autosync::PostByOrgReposRequestUpstreamAutosync;
-pub mod post_by_org_repos_request_upstream_autosync_one_of;
-pub use self::post_by_org_repos_request_upstream_autosync_one_of::PostByOrgReposRequestUpstreamAutosyncOneOf;

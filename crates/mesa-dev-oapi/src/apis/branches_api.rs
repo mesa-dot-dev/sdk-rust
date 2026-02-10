@@ -61,11 +61,11 @@ pub enum PostByOrgByRepoBranchesError {
 /// Delete a branch from a repository
 pub async fn delete_by_org_by_repo_branches_by_branch(configuration: &configuration::Configuration, org: &str, repo: &str, branch: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoBranchesByBranchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_branch = branch;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_path_branch = branch;
 
-    let uri_str = format!("{}/{org}/{repo}/branches/{branch}", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo), branch=crate::apis::urlencode(p_branch));
+    let uri_str = format!("{}/{org}/{repo}/branches/{branch}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), branch=crate::apis::urlencode(p_path_branch));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -89,7 +89,7 @@ pub async fn delete_by_org_by_repo_branches_by_branch(configuration: &configurat
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`")))),
         }
@@ -103,18 +103,18 @@ pub async fn delete_by_org_by_repo_branches_by_branch(configuration: &configurat
 /// List all branches in a repository
 pub async fn get_by_org_by_repo_branches(configuration: &configuration::Configuration, org: &str, repo: &str, cursor: Option<&str>, limit: Option<u8>) -> Result<models::GetByOrgByRepoBranches200Response, Error<GetByOrgByRepoBranchesError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_cursor = cursor;
-    let p_limit = limit;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_query_cursor = cursor;
+    let p_query_limit = limit;
 
-    let uri_str = format!("{}/{org}/{repo}/branches", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/branches", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = p_cursor {
+    if let Some(ref param_value) = p_query_cursor {
         req_builder = req_builder.query(&[("cursor", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = p_limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -138,7 +138,7 @@ pub async fn get_by_org_by_repo_branches(configuration: &configuration::Configur
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgByRepoBranches200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgByRepoBranches200Response`")))),
         }
@@ -152,11 +152,11 @@ pub async fn get_by_org_by_repo_branches(configuration: &configuration::Configur
 /// Create a new branch from an existing ref
 pub async fn post_by_org_by_repo_branches(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_branches_request: Option<models::PostByOrgByRepoBranchesRequest>) -> Result<models::PostByOrgByRepoBranches201Response, Error<PostByOrgByRepoBranchesError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_post_by_org_by_repo_branches_request = post_by_org_by_repo_branches_request;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_body_post_by_org_by_repo_branches_request = post_by_org_by_repo_branches_request;
 
-    let uri_str = format!("{}/{org}/{repo}/branches", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/branches", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -165,7 +165,7 @@ pub async fn post_by_org_by_repo_branches(configuration: &configuration::Configu
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_post_by_org_by_repo_branches_request);
+    req_builder = req_builder.json(&p_body_post_by_org_by_repo_branches_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -181,7 +181,7 @@ pub async fn post_by_org_by_repo_branches(configuration: &configuration::Configu
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgByRepoBranches201Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgByRepoBranches201Response`")))),
         }

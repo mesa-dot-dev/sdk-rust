@@ -1,10 +1,12 @@
 # PostByOrgReposRequestUpstreamAutosync
 
-## Enum Variants
+## Properties
 
-| Name | Description |
-|---- | -----|
-| PostByOrgReposRequestUpstreamAutosyncOneOf | Optionally enable automatic sync from the upstream repository |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**r#type** | **Type** |  (enum: poll) | 
+**period** | **u32** | Polling period in seconds (60s to 24.8d) | 
+**resolution_strategy** | Option<**ResolutionStrategy**> | Conflict resolution strategy. \"none\" means sync will fail on conflicts. (enum: none) | [optional][default to None]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

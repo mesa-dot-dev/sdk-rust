@@ -117,10 +117,10 @@ pub enum PostByOrgReposError {
 /// Permanently delete a repository and all its data
 pub async fn delete_by_org_by_repo(configuration: &configuration::Configuration, org: &str, repo: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
+    let p_path_org = org;
+    let p_path_repo = repo;
 
-    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -144,7 +144,7 @@ pub async fn delete_by_org_by_repo(configuration: &configuration::Configuration,
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`")))),
         }
@@ -158,10 +158,10 @@ pub async fn delete_by_org_by_repo(configuration: &configuration::Configuration,
 /// Get metadata for a specific repository
 pub async fn get_by_org_by_repo(configuration: &configuration::Configuration, org: &str, repo: &str) -> Result<models::PostByOrgRepos201Response, Error<GetByOrgByRepoError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
+    let p_path_org = org;
+    let p_path_repo = repo;
 
-    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -185,7 +185,7 @@ pub async fn get_by_org_by_repo(configuration: &configuration::Configuration, or
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgRepos201Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgRepos201Response`")))),
         }
@@ -199,10 +199,10 @@ pub async fn get_by_org_by_repo(configuration: &configuration::Configuration, or
 /// Get the sync status for a repository with upstream configured
 pub async fn get_by_org_by_repo_sync(configuration: &configuration::Configuration, org: &str, repo: &str) -> Result<models::GetByOrgByRepoSync200Response, Error<GetByOrgByRepoSyncError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
+    let p_path_org = org;
+    let p_path_repo = repo;
 
-    let uri_str = format!("{}/{org}/{repo}/sync", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/sync", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -226,7 +226,7 @@ pub async fn get_by_org_by_repo_sync(configuration: &configuration::Configuratio
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgByRepoSync200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgByRepoSync200Response`")))),
         }
@@ -240,17 +240,17 @@ pub async fn get_by_org_by_repo_sync(configuration: &configuration::Configuratio
 /// List all repositories in the organization
 pub async fn get_by_org_repos(configuration: &configuration::Configuration, org: &str, cursor: Option<&str>, limit: Option<u8>) -> Result<models::GetByOrgRepos200Response, Error<GetByOrgReposError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_cursor = cursor;
-    let p_limit = limit;
+    let p_path_org = org;
+    let p_query_cursor = cursor;
+    let p_query_limit = limit;
 
-    let uri_str = format!("{}/{org}/repos", configuration.base_path, org=crate::apis::urlencode(p_org));
+    let uri_str = format!("{}/{org}/repos", configuration.base_path, org=crate::apis::urlencode(p_path_org));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = p_cursor {
+    if let Some(ref param_value) = p_query_cursor {
         req_builder = req_builder.query(&[("cursor", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = p_limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -274,7 +274,7 @@ pub async fn get_by_org_repos(configuration: &configuration::Configuration, org:
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgRepos200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgRepos200Response`")))),
         }
@@ -288,11 +288,11 @@ pub async fn get_by_org_repos(configuration: &configuration::Configuration, org:
 /// Update repository name or upstream configuration
 pub async fn patch_by_org_by_repo(configuration: &configuration::Configuration, org: &str, repo: &str, patch_by_org_by_repo_request: Option<models::PatchByOrgByRepoRequest>) -> Result<models::PostByOrgRepos201Response, Error<PatchByOrgByRepoError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_patch_by_org_by_repo_request = patch_by_org_by_repo_request;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_body_patch_by_org_by_repo_request = patch_by_org_by_repo_request;
 
-    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -301,7 +301,7 @@ pub async fn patch_by_org_by_repo(configuration: &configuration::Configuration, 
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_patch_by_org_by_repo_request);
+    req_builder = req_builder.json(&p_body_patch_by_org_by_repo_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -317,7 +317,7 @@ pub async fn patch_by_org_by_repo(configuration: &configuration::Configuration, 
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgRepos201Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgRepos201Response`")))),
         }
@@ -331,10 +331,10 @@ pub async fn patch_by_org_by_repo(configuration: &configuration::Configuration, 
 /// Trigger a sync from the upstream repository. Waits for sync to complete.
 pub async fn post_by_org_by_repo_sync(configuration: &configuration::Configuration, org: &str, repo: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<PostByOrgByRepoSyncError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
+    let p_path_org = org;
+    let p_path_repo = repo;
 
-    let uri_str = format!("{}/{org}/{repo}/sync", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/sync", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -358,7 +358,7 @@ pub async fn post_by_org_by_repo_sync(configuration: &configuration::Configurati
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::DeleteByOrgApiKeysById200Response`")))),
         }
@@ -372,10 +372,10 @@ pub async fn post_by_org_by_repo_sync(configuration: &configuration::Configurati
 /// Create a new repository in the organization
 pub async fn post_by_org_repos(configuration: &configuration::Configuration, org: &str, post_by_org_repos_request: Option<models::PostByOrgReposRequest>) -> Result<models::PostByOrgRepos201Response, Error<PostByOrgReposError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_post_by_org_repos_request = post_by_org_repos_request;
+    let p_path_org = org;
+    let p_body_post_by_org_repos_request = post_by_org_repos_request;
 
-    let uri_str = format!("{}/{org}/repos", configuration.base_path, org=crate::apis::urlencode(p_org));
+    let uri_str = format!("{}/{org}/repos", configuration.base_path, org=crate::apis::urlencode(p_path_org));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -384,7 +384,7 @@ pub async fn post_by_org_repos(configuration: &configuration::Configuration, org
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_post_by_org_repos_request);
+    req_builder = req_builder.json(&p_body_post_by_org_repos_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -400,7 +400,7 @@ pub async fn post_by_org_repos(configuration: &configuration::Configuration, org
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgRepos201Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgRepos201Response`")))),
         }

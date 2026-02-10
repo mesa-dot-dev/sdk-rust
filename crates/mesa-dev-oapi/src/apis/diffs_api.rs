@@ -33,16 +33,16 @@ pub enum GetByOrgByRepoDiffError {
 /// Retrieve the diff between two refs
 pub async fn get_by_org_by_repo_diff(configuration: &configuration::Configuration, org: &str, repo: &str, base: &str, head: &str) -> Result<models::GetByOrgByRepoDiff200Response, Error<GetByOrgByRepoDiffError>> {
     // add a prefix to parameters to efficiently prevent name collisions
-    let p_org = org;
-    let p_repo = repo;
-    let p_base = base;
-    let p_head = head;
+    let p_path_org = org;
+    let p_path_repo = repo;
+    let p_query_base = base;
+    let p_query_head = head;
 
-    let uri_str = format!("{}/{org}/{repo}/diff", configuration.base_path, org=crate::apis::urlencode(p_org), repo=crate::apis::urlencode(p_repo));
+    let uri_str = format!("{}/{org}/{repo}/diff", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("base", &p_base.to_string())]);
-    req_builder = req_builder.query(&[("head", &p_head.to_string())]);
+    req_builder = req_builder.query(&[("base", &p_query_base.to_string())]);
+    req_builder = req_builder.query(&[("head", &p_query_head.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -64,7 +64,7 @@ pub async fn get_by_org_by_repo_diff(configuration: &configuration::Configuratio
     if !status.is_client_error() && !status.is_server_error() {
         let content = resp.text().await?;
         match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
             ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgByRepoDiff200Response`"))),
             ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgByRepoDiff200Response`")))),
         }
