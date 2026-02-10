@@ -54,7 +54,17 @@ jobs:
 
           sed -i "s/^version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" crates/mesa-dev/Cargo.toml
 
-          # Update Cargo.lock to reflect the new version
+          OAPI_CURRENT_VERSION=$(grep '^version' crates/mesa-dev-oapi/Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "Current mesa_dev_oapi version: ${OAPI_CURRENT_VERSION}"
+
+          IFS='.' read -r OAPI_MAJOR OAPI_MINOR OAPI_PATCH <<< "$OAPI_CURRENT_VERSION"
+          OAPI_NEW_PATCH=$((OAPI_PATCH + 1))
+          OAPI_NEW_VERSION="${OAPI_MAJOR}.${OAPI_MINOR}.${OAPI_NEW_PATCH}"
+          echo "New mesa_dev_oapi version: ${OAPI_NEW_VERSION}"
+
+          sed -i "s/^version = \"${OAPI_CURRENT_VERSION}\"/version = \"${OAPI_NEW_VERSION}\"/" crates/mesa-dev-oapi/Cargo.toml
+
+          # Update Cargo.lock to reflect the new versions
           cargo check -p mesa-dev
 
           echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
@@ -64,7 +74,7 @@ jobs:
           git config user.name "mesa-ci[bot]"
           git config user.email "ci-bot@mesa.dev"
 
-          git add crates/mesa-dev/Cargo.toml Cargo.lock
+          git add crates/mesa-dev/Cargo.toml crates/mesa-dev-oapi/Cargo.toml Cargo.lock
           git commit -m "Bump mesa-dev to ${{ steps.bump.outputs.new_version }}"
           git push origin staged
 
