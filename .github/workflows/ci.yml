@@ -33,6 +33,13 @@ jobs:
       - name: Check formatting of mesa-dev
         run: cargo fmt -p mesa-dev --check
 
+      - name: Run tests
+        timeout-minutes: 10
+        env:
+          MESA_TEST_API_KEY: ${{ secrets.MESA_TEST_API_KEY }}
+          MESA_TEST_ORG: ${{ secrets.MESA_TEST_ORG }}
+        run: cargo test --workspace
+
       - name: Bump minor version
         id: bump
         run: |
