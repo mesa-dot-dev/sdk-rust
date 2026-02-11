@@ -15,6 +15,7 @@ impl LfsClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn upload(
         &self,
         request: models::PostByOrgByRepoLfsObjectsRequest,
@@ -36,6 +37,7 @@ impl LfsClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn download(
         &self,
         request: models::PostByOrgByRepoLfsObjectsRequest,

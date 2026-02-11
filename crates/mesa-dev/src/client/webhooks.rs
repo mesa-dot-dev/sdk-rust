@@ -15,6 +15,7 @@ impl WebhooksClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn list(
         &self,
     ) -> Result<
@@ -34,6 +35,7 @@ impl WebhooksClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn create(
         &self,
         request: models::PostByOrgByRepoWebhooksRequest,
@@ -55,6 +57,7 @@ impl WebhooksClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn delete(
         &self,
         webhook_id: &str,

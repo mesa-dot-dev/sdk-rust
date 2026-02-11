@@ -15,6 +15,7 @@ impl SyncClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn status(
         &self,
     ) -> Result<models::GetByOrgByRepoSync200Response, Error<repos_api::GetByOrgByRepoSyncError>>
@@ -28,6 +29,7 @@ impl SyncClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn trigger(
         &self,
     ) -> Result<models::DeleteByOrgApiKeysById200Response, Error<repos_api::PostByOrgByRepoSyncError>>

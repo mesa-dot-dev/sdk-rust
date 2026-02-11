@@ -17,6 +17,7 @@ impl ContentClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn get(
         &self,
         r#ref: Option<&str>,
