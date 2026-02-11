@@ -58,8 +58,8 @@ jobs:
           echo "Current mesa_dev_oapi version: ${OAPI_CURRENT_VERSION}"
 
           IFS='.' read -r OAPI_MAJOR OAPI_MINOR OAPI_PATCH <<< "$OAPI_CURRENT_VERSION"
-          OAPI_NEW_PATCH=$((OAPI_PATCH + 1))
-          OAPI_NEW_VERSION="${OAPI_MAJOR}.${OAPI_MINOR}.${OAPI_NEW_PATCH}"
+          OAPI_NEW_MINOR=$((OAPI_MINOR + 1))
+          OAPI_NEW_VERSION="${OAPI_MAJOR}.${OAPI_NEW_MINOR}.0"
           echo "New mesa_dev_oapi version: ${OAPI_NEW_VERSION}"
 
           sed -i "s/^version = \"${OAPI_CURRENT_VERSION}\"/version = \"${OAPI_NEW_VERSION}\"/" crates/mesa-dev-oapi/Cargo.toml
