@@ -19,6 +19,7 @@ impl RepoClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.org.org, repo = self.repo), err(Debug))]
     pub async fn get(
         &self,
     ) -> Result<models::PostByOrgRepos201Response, Error<repos_api::GetByOrgByRepoError>> {
@@ -30,6 +31,7 @@ impl RepoClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.org.org, repo = self.repo), err(Debug))]
     pub async fn delete(
         &self,
     ) -> Result<models::DeleteByOrgApiKeysById200Response, Error<repos_api::DeleteByOrgByRepoError>>
@@ -42,6 +44,7 @@ impl RepoClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.org.org, repo = self.repo), err(Debug))]
     pub async fn update(
         &self,
         request: models::PatchByOrgByRepoRequest,

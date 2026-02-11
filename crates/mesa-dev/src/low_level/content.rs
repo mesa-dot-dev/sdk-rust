@@ -132,6 +132,7 @@ impl<'de> Deserialize<'de> for DirEntry {
 ///
 /// Returns an error if the request fails or the response cannot be
 /// deserialized.
+#[tracing::instrument(skip(configuration), fields(http.method = "GET", http.status_code), err(Debug))]
 pub async fn get_content(
     configuration: &Configuration,
     org: &str,
@@ -168,6 +169,7 @@ pub async fn get_content(
     let resp = configuration.client.execute(req).await?;
 
     let status = resp.status();
+    tracing::Span::current().record("http.status_code", status.as_u16());
 
     if !status.is_client_error() && !status.is_server_error() {
         let text = resp.text().await?;

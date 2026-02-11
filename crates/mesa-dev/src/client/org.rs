@@ -16,6 +16,7 @@ impl OrgClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.org), err(Debug))]
     pub async fn get(&self) -> Result<models::GetByOrg200Response, Error<org_api::GetByOrgError>> {
         org_api::get_by_org(self.config, self.org).await
     }

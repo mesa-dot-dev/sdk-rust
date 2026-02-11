@@ -43,6 +43,7 @@ impl<'a> ReposClient<'a> {
             Error<repos_api::GetByOrgReposError>,
         >,
     > + 'a {
+        tracing::debug!(org = self.org.org, limit, "listing repos");
         let config = self.org.config;
         let org = self.org.org;
 
@@ -56,6 +57,7 @@ impl<'a> ReposClient<'a> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.org.org), err(Debug))]
     pub async fn create(
         &self,
         request: models::PostByOrgReposRequest,

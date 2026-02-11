@@ -37,9 +37,11 @@ where
     async_stream::try_stream! {
         let mut cursor: Option<String> = None;
         loop {
+            tracing::trace!(cursor = cursor.as_deref(), "fetching page");
             let page = fetch(cursor, limit).await?;
             let has_more = page.has_more();
             let next = page.next_cursor().map(String::from);
+            tracing::trace!(has_more, next_cursor = next.as_deref(), "page received");
             for item in page.items() {
                 yield item;
             }

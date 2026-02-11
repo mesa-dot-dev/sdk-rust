@@ -15,6 +15,7 @@ impl ApiKeysClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.org.org), err(Debug))]
     pub async fn list(
         &self,
     ) -> Result<models::GetByOrgApiKeys200Response, Error<admin_api::GetByOrgApiKeysError>> {
@@ -26,6 +27,7 @@ impl ApiKeysClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.org.org), err(Debug))]
     pub async fn create(
         &self,
         request: models::PostByOrgApiKeysRequest,
@@ -38,6 +40,7 @@ impl ApiKeysClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.org.org), err(Debug))]
     pub async fn revoke(
         &self,
         id: &str,

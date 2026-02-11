@@ -45,6 +45,13 @@ impl<'a> CommitsClient<'a> {
             Error<commits_api::GetByOrgByRepoCommitsError>,
         >,
     > + 'a {
+        tracing::debug!(
+            org = self.repo.org.org,
+            repo = self.repo.repo,
+            r#ref,
+            limit,
+            "listing commits"
+        );
         let config = self.repo.org.config;
         let org = self.repo.org.org;
         let repo = self.repo.repo;
@@ -67,6 +74,7 @@ impl<'a> CommitsClient<'a> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn get(
         &self,
         sha: &str,
@@ -92,6 +100,7 @@ impl<'a> CommitsClient<'a> {
     ///
     /// Returns an error if the API request fails.
     #[allow(clippy::too_many_arguments)]
+    #[tracing::instrument(skip(self, author, files), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn create(
         &self,
         branch: &str,

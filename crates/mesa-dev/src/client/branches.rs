@@ -43,6 +43,12 @@ impl<'a> BranchesClient<'a> {
             Error<branches_api::GetByOrgByRepoBranchesError>,
         >,
     > + 'a {
+        tracing::debug!(
+            org = self.repo.org.org,
+            repo = self.repo.repo,
+            limit,
+            "listing branches"
+        );
         let config = self.repo.org.config;
         let org = self.repo.org.org;
         let repo = self.repo.repo;
@@ -58,6 +64,7 @@ impl<'a> BranchesClient<'a> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self, request), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn create(
         &self,
         request: models::PostByOrgByRepoBranchesRequest,
@@ -79,6 +86,7 @@ impl<'a> BranchesClient<'a> {
     /// # Errors
     ///
     /// Returns an error if the API request fails.
+    #[tracing::instrument(skip(self), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn delete(
         &self,
         branch: &str,

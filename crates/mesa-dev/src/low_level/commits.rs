@@ -139,6 +139,7 @@ pub struct CommitResponse {
 /// Returns an error if the request fails or the response cannot be
 /// deserialized.
 #[allow(clippy::too_many_arguments)]
+#[tracing::instrument(skip(configuration, author, files), fields(http.method = "POST", http.status_code), err(Debug))]
 pub async fn create_commit(
     configuration: &Configuration,
     org: &str,
@@ -186,6 +187,7 @@ pub async fn create_commit(
     let resp = configuration.client.execute(req).await?;
 
     let status = resp.status();
+    tracing::Span::current().record("http.status_code", status.as_u16());
 
     if !status.is_client_error() && !status.is_server_error() {
         let text = resp.text().await?;
