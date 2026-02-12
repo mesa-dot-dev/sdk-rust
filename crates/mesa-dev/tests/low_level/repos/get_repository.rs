@@ -6,7 +6,7 @@ use test_context::test_context;
 #[test_context(RepoContext)]
 #[tokio::test]
 async fn test_get_repository(ctx: &mut RepoContext) {
-    let resp = repos_api::get_by_org_by_repo(&ctx.config, &ctx.org, &ctx.repo_name)
+    let resp = repos_api::get_by_org_by_repo(&ctx.config, &ctx.org, Some(&ctx.repo_name))
         .await
         .unwrap();
 
