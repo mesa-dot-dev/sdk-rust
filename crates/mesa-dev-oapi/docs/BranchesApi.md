@@ -24,7 +24,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**branch** | **String** |  | [required] |
+**branch** | Option<**String**> |  | [required] |
 
 ### Return type
 

@@ -58,7 +58,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**sha** | **String** |  | [required] |
+**sha** | Option<**String**> |  | [required] |
 
 ### Return type
 

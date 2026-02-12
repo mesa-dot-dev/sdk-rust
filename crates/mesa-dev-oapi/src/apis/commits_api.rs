@@ -112,13 +112,13 @@ pub async fn get_by_org_by_repo_commits(configuration: &configuration::Configura
 }
 
 /// Retrieve a specific commit by its SHA
-pub async fn get_by_org_by_repo_commits_by_sha(configuration: &configuration::Configuration, org: &str, repo: &str, sha: &str) -> Result<models::GetByOrgByRepoCommitsBySha200Response, Error<GetByOrgByRepoCommitsByShaError>> {
+pub async fn get_by_org_by_repo_commits_by_sha(configuration: &configuration::Configuration, org: &str, repo: &str, sha: Option<&str>) -> Result<models::GetByOrgByRepoCommitsBySha200Response, Error<GetByOrgByRepoCommitsByShaError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
     let p_path_sha = sha;
 
-    let uri_str = format!("{}/{org}/{repo}/commits/{sha}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), sha=crate::apis::urlencode(p_path_sha));
+    let uri_str = format!("{}/{org}/{repo}/commits/{sha}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), sha=crate::apis::urlencode(p_path_sha.unwrap()));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

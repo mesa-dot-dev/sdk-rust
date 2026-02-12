@@ -24,16 +24,23 @@ pub struct GetByOrgRepos200ResponseReposInnerUpstream {
     pub last_sync_success: Option<String>,
     #[serde(rename = "last_sync_error", deserialize_with = "Option::deserialize")]
     pub last_sync_error: Option<String>,
+    /// Whether this upstream has an authentication credential configured
+    #[serde(rename = "has_credential")]
+    pub has_credential: bool,
+    #[serde(rename = "credential_host", deserialize_with = "Option::deserialize")]
+    pub credential_host: Option<String>,
 }
 
 impl GetByOrgRepos200ResponseReposInnerUpstream {
-    pub fn new(uri: String, autosync: Option<models::GetByOrgRepos200ResponseReposInnerUpstreamAutosync>, last_sync_attempt: Option<String>, last_sync_success: Option<String>, last_sync_error: Option<String>) -> GetByOrgRepos200ResponseReposInnerUpstream {
+    pub fn new(uri: String, autosync: Option<models::GetByOrgRepos200ResponseReposInnerUpstreamAutosync>, last_sync_attempt: Option<String>, last_sync_success: Option<String>, last_sync_error: Option<String>, has_credential: bool, credential_host: Option<String>) -> GetByOrgRepos200ResponseReposInnerUpstream {
         GetByOrgRepos200ResponseReposInnerUpstream {
             uri,
             autosync,
             last_sync_attempt,
             last_sync_success,
             last_sync_error,
+            has_credential,
+            credential_host,
         }
     }
 }

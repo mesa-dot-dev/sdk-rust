@@ -156,12 +156,12 @@ pub async fn delete_by_org_by_repo(configuration: &configuration::Configuration,
 }
 
 /// Get metadata for a specific repository
-pub async fn get_by_org_by_repo(configuration: &configuration::Configuration, org: &str, repo: &str) -> Result<models::PostByOrgRepos201Response, Error<GetByOrgByRepoError>> {
+pub async fn get_by_org_by_repo(configuration: &configuration::Configuration, org: &str, repo: Option<&str>) -> Result<models::PostByOrgRepos201Response, Error<GetByOrgByRepoError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
 
-    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
+    let uri_str = format!("{}/{org}/{repo}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo.unwrap()));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -238,13 +238,13 @@ pub async fn get_by_org_by_repo_sync(configuration: &configuration::Configuratio
 }
 
 /// List all repositories in the organization
-pub async fn get_by_org_repos(configuration: &configuration::Configuration, org: &str, cursor: Option<&str>, limit: Option<u8>) -> Result<models::GetByOrgRepos200Response, Error<GetByOrgReposError>> {
+pub async fn get_by_org_repos(configuration: &configuration::Configuration, org: Option<&str>, cursor: Option<&str>, limit: Option<u8>) -> Result<models::GetByOrgRepos200Response, Error<GetByOrgReposError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_query_cursor = cursor;
     let p_query_limit = limit;
 
-    let uri_str = format!("{}/{org}/repos", configuration.base_path, org=crate::apis::urlencode(p_path_org));
+    let uri_str = format!("{}/{org}/repos", configuration.base_path, org=crate::apis::urlencode(p_path_org.unwrap()));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref param_value) = p_query_cursor {

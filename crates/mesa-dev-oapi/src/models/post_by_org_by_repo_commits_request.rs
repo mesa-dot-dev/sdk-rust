@@ -13,10 +13,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PostByOrgByRepoCommitsRequest {
-    #[serde(rename = "branch")]
-    pub branch: String,
-    #[serde(rename = "message")]
-    pub message: String,
+    #[serde(rename = "branch", deserialize_with = "Option::deserialize")]
+    pub branch: Option<String>,
+    #[serde(rename = "message", deserialize_with = "Option::deserialize")]
+    pub message: Option<String>,
     #[serde(rename = "author")]
     pub author: models::GetByOrgByRepoCommits200ResponseCommitsInnerCommitter,
     #[serde(rename = "base_sha", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
@@ -26,7 +26,7 @@ pub struct PostByOrgByRepoCommitsRequest {
 }
 
 impl PostByOrgByRepoCommitsRequest {
-    pub fn new(branch: String, message: String, author: models::GetByOrgByRepoCommits200ResponseCommitsInnerCommitter, files: Vec<models::PostByOrgByRepoCommitsRequestFilesInner>) -> PostByOrgByRepoCommitsRequest {
+    pub fn new(branch: Option<String>, message: Option<String>, author: models::GetByOrgByRepoCommits200ResponseCommitsInnerCommitter, files: Vec<models::PostByOrgByRepoCommitsRequestFilesInner>) -> PostByOrgByRepoCommitsRequest {
         PostByOrgByRepoCommitsRequest {
             branch,
             message,

@@ -59,13 +59,13 @@ pub enum PostByOrgByRepoWebhooksError {
 
 
 /// Delete a webhook from a repository
-pub async fn delete_by_org_by_repo_webhooks_by_webhook_id(configuration: &configuration::Configuration, org: &str, repo: &str, webhook_id: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoWebhooksByWebhookIdError>> {
+pub async fn delete_by_org_by_repo_webhooks_by_webhook_id(configuration: &configuration::Configuration, org: &str, repo: &str, webhook_id: Option<&str>) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoWebhooksByWebhookIdError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
     let p_path_webhook_id = webhook_id;
 
-    let uri_str = format!("{}/{org}/{repo}/webhooks/{webhookId}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), webhookId=crate::apis::urlencode(p_path_webhook_id));
+    let uri_str = format!("{}/{org}/{repo}/webhooks/{webhookId}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), webhookId=crate::apis::urlencode(p_path_webhook_id.unwrap()));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

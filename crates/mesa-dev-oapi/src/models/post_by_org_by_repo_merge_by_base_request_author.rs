@@ -11,8 +11,9 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// PostByOrgByRepoMergeByBaseRequestAuthor : The author of the merge commit
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct GetByOrgByRepoCommits200ResponseCommitsInnerAuthor {
+pub struct PostByOrgByRepoMergeByBaseRequestAuthor {
     #[serde(rename = "name", deserialize_with = "Option::deserialize")]
     pub name: Option<String>,
     #[serde(rename = "email")]
@@ -21,9 +22,10 @@ pub struct GetByOrgByRepoCommits200ResponseCommitsInnerAuthor {
     pub date: Option<Option<String>>,
 }
 
-impl GetByOrgByRepoCommits200ResponseCommitsInnerAuthor {
-    pub fn new(name: Option<String>, email: String) -> GetByOrgByRepoCommits200ResponseCommitsInnerAuthor {
-        GetByOrgByRepoCommits200ResponseCommitsInnerAuthor {
+impl PostByOrgByRepoMergeByBaseRequestAuthor {
+    /// The author of the merge commit
+    pub fn new(name: Option<String>, email: String) -> PostByOrgByRepoMergeByBaseRequestAuthor {
+        PostByOrgByRepoMergeByBaseRequestAuthor {
             name,
             email,
             date: None,

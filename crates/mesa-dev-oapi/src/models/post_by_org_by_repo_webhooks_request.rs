@@ -21,8 +21,8 @@ pub struct PostByOrgByRepoWebhooksRequest {
     pub branches: Option<Vec<String>>,
     #[serde(rename = "globs", skip_serializing_if = "Option::is_none")]
     pub globs: Option<Vec<String>>,
-    #[serde(rename = "secret", skip_serializing_if = "Option::is_none")]
-    pub secret: Option<String>,
+    #[serde(rename = "secret", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
+    pub secret: Option<Option<String>>,
 }
 
 impl PostByOrgByRepoWebhooksRequest {

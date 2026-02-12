@@ -59,13 +59,13 @@ pub enum PostByOrgByRepoBranchesError {
 
 
 /// Delete a branch from a repository
-pub async fn delete_by_org_by_repo_branches_by_branch(configuration: &configuration::Configuration, org: &str, repo: &str, branch: &str) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoBranchesByBranchError>> {
+pub async fn delete_by_org_by_repo_branches_by_branch(configuration: &configuration::Configuration, org: &str, repo: &str, branch: Option<&str>) -> Result<models::DeleteByOrgApiKeysById200Response, Error<DeleteByOrgByRepoBranchesByBranchError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
     let p_path_branch = branch;
 
-    let uri_str = format!("{}/{org}/{repo}/branches/{branch}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), branch=crate::apis::urlencode(p_path_branch));
+    let uri_str = format!("{}/{org}/{repo}/branches/{branch}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), branch=crate::apis::urlencode(p_path_branch.unwrap()));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

@@ -58,7 +58,7 @@ Get metadata for a specific repository
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
-**repo** | **String** |  | [required] |
+**repo** | Option<**String**> |  | [required] |
 
 ### Return type
 
@@ -119,7 +119,7 @@ List all repositories in the organization
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**org** | **String** |  | [required] |
+**org** | Option<**String**> |  | [required] |
 **cursor** | Option<**String**> |  |  |
 **limit** | Option<**u8**> |  |  |
 

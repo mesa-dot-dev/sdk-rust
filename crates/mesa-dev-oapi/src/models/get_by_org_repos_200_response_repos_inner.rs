@@ -25,8 +25,6 @@ pub struct GetByOrgRepos200ResponseReposInner {
     pub head_sha: Option<String>,
     #[serde(rename = "size_bytes")]
     pub size_bytes: f64,
-    #[serde(rename = "last_push_at", deserialize_with = "Option::deserialize")]
-    pub last_push_at: Option<String>,
     #[serde(rename = "created_at", deserialize_with = "Option::deserialize")]
     pub created_at: Option<String>,
     #[serde(rename = "upstream", deserialize_with = "Option::deserialize")]
@@ -34,7 +32,7 @@ pub struct GetByOrgRepos200ResponseReposInner {
 }
 
 impl GetByOrgRepos200ResponseReposInner {
-    pub fn new(id: Option<String>, org: Option<String>, name: Option<String>, default_branch: Option<String>, head_sha: Option<String>, size_bytes: f64, last_push_at: Option<String>, created_at: Option<String>, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> GetByOrgRepos200ResponseReposInner {
+    pub fn new(id: Option<String>, org: Option<String>, name: Option<String>, default_branch: Option<String>, head_sha: Option<String>, size_bytes: f64, created_at: Option<String>, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> GetByOrgRepos200ResponseReposInner {
         GetByOrgRepos200ResponseReposInner {
             id,
             org,
@@ -42,7 +40,6 @@ impl GetByOrgRepos200ResponseReposInner {
             default_branch,
             head_sha,
             size_bytes,
-            last_push_at,
             created_at,
             upstream,
         }

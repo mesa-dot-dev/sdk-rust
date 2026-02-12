@@ -88,11 +88,11 @@ pub async fn post_by_org_by_repo_lfs_objects(configuration: &configuration::Conf
 }
 
 /// Request pre-signed URLs to download large files from LFS storage.
-pub async fn post_by_org_by_repo_lfs_objects_download(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_lfs_objects_request: Option<models::PostByOrgByRepoLfsObjectsRequest>) -> Result<models::PostByOrgByRepoLfsObjects200Response, Error<PostByOrgByRepoLfsObjectsDownloadError>> {
+pub async fn post_by_org_by_repo_lfs_objects_download(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_lfs_objects_download_request: Option<models::PostByOrgByRepoLfsObjectsDownloadRequest>) -> Result<models::PostByOrgByRepoLfsObjects200Response, Error<PostByOrgByRepoLfsObjectsDownloadError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
-    let p_body_post_by_org_by_repo_lfs_objects_request = post_by_org_by_repo_lfs_objects_request;
+    let p_body_post_by_org_by_repo_lfs_objects_download_request = post_by_org_by_repo_lfs_objects_download_request;
 
     let uri_str = format!("{}/{org}/{repo}/lfs/objects/download", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -103,7 +103,7 @@ pub async fn post_by_org_by_repo_lfs_objects_download(configuration: &configurat
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
-    req_builder = req_builder.json(&p_body_post_by_org_by_repo_lfs_objects_request);
+    req_builder = req_builder.json(&p_body_post_by_org_by_repo_lfs_objects_download_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

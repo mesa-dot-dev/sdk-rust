@@ -12,16 +12,16 @@ use crate::models;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct PostByOrgByRepoLfsObjectsRequestObjectsInner {
-    #[serde(rename = "oid", deserialize_with = "Option::deserialize")]
-    pub oid: Option<String>,
+pub struct PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner {
+    #[serde(rename = "oid")]
+    pub oid: String,
     #[serde(rename = "size")]
     pub size: u64,
 }
 
-impl PostByOrgByRepoLfsObjectsRequestObjectsInner {
-    pub fn new(oid: Option<String>, size: u64) -> PostByOrgByRepoLfsObjectsRequestObjectsInner {
-        PostByOrgByRepoLfsObjectsRequestObjectsInner {
+impl PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner {
+    pub fn new(oid: String, size: u64) -> PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner {
+        PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner {
             oid,
             size,
         }

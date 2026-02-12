@@ -15,10 +15,10 @@ use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
 
-/// struct for typed errors of method [`get_by_org_by_repo_diff`]
+/// struct for typed errors of method [`post_by_org_by_repo_merge_by_base`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum GetByOrgByRepoDiffError {
+pub enum PostByOrgByRepoMergeByBaseError {
     Status400(models::PostByOrgApiKeys400Response),
     Status401(models::PostByOrgApiKeys400Response),
     Status403(models::PostByOrgApiKeys400Response),
@@ -30,29 +30,24 @@ pub enum GetByOrgByRepoDiffError {
 }
 
 
-/// Retrieve the diff between two refs
-pub async fn get_by_org_by_repo_diff(configuration: &configuration::Configuration, org: &str, repo: &str, base: Option<&str>, head: Option<&str>) -> Result<models::GetByOrgByRepoDiff200Response, Error<GetByOrgByRepoDiffError>> {
+/// Merge a head branch into a base branch. Performs a fast-forward merge when possible, otherwise creates a merge commit. Returns 409 if there are merge conflicts.
+pub async fn post_by_org_by_repo_merge_by_base(configuration: &configuration::Configuration, org: &str, repo: &str, base: Option<&str>, post_by_org_by_repo_merge_by_base_request: Option<models::PostByOrgByRepoMergeByBaseRequest>) -> Result<models::PostByOrgByRepoMergeByBase200Response, Error<PostByOrgByRepoMergeByBaseError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
-    let p_query_base = base;
-    let p_query_head = head;
+    let p_path_base = base;
+    let p_body_post_by_org_by_repo_merge_by_base_request = post_by_org_by_repo_merge_by_base_request;
 
-    let uri_str = format!("{}/{org}/{repo}/diff", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+    let uri_str = format!("{}/{org}/{repo}/merge/{base}", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo), base=crate::apis::urlencode(p_path_base.unwrap()));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = p_query_base {
-        req_builder = req_builder.query(&[("base", &param_value.to_string())]);
-    };
-    if let Some(ref param_value) = p_query_head {
-        req_builder = req_builder.query(&[("head", &param_value.to_string())]);
-    };
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
     if let Some(ref token) = configuration.bearer_access_token {
         req_builder = req_builder.bearer_auth(token.to_owned());
     };
+    req_builder = req_builder.json(&p_body_post_by_org_by_repo_merge_by_base_request);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -69,12 +64,12 @@ pub async fn get_by_org_by_repo_diff(configuration: &configuration::Configuratio
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GetByOrgByRepoDiff200Response`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GetByOrgByRepoDiff200Response`")))),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgByRepoMergeByBase200Response`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgByRepoMergeByBase200Response`")))),
         }
     } else {
         let content = resp.text().await?;
-        let entity: Option<GetByOrgByRepoDiffError> = serde_json::from_str(&content).ok();
+        let entity: Option<PostByOrgByRepoMergeByBaseError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }

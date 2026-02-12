@@ -25,8 +25,6 @@ pub struct PostByOrgRepos201Response {
     pub head_sha: Option<String>,
     #[serde(rename = "size_bytes")]
     pub size_bytes: f64,
-    #[serde(rename = "last_push_at", deserialize_with = "Option::deserialize")]
-    pub last_push_at: Option<String>,
     #[serde(rename = "created_at")]
     pub created_at: String,
     #[serde(rename = "upstream", deserialize_with = "Option::deserialize")]
@@ -34,7 +32,7 @@ pub struct PostByOrgRepos201Response {
 }
 
 impl PostByOrgRepos201Response {
-    pub fn new(id: String, org: String, name: String, default_branch: String, head_sha: Option<String>, size_bytes: f64, last_push_at: Option<String>, created_at: String, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> PostByOrgRepos201Response {
+    pub fn new(id: String, org: String, name: String, default_branch: String, head_sha: Option<String>, size_bytes: f64, created_at: String, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> PostByOrgRepos201Response {
         PostByOrgRepos201Response {
             id,
             org,
@@ -42,7 +40,6 @@ impl PostByOrgRepos201Response {
             default_branch,
             head_sha,
             size_bytes,
-            last_push_at,
             created_at,
             upstream,
         }

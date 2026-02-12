@@ -13,14 +13,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PostByOrgByRepoCommitsRequestFilesInnerAnyOf2 {
-    #[serde(rename = "path")]
-    pub path: String,
+    #[serde(rename = "path", deserialize_with = "Option::deserialize")]
+    pub path: Option<String>,
     #[serde(rename = "lfs")]
     pub lfs: models::PostByOrgByRepoCommitsRequestFilesInnerAnyOf2Lfs,
 }
 
 impl PostByOrgByRepoCommitsRequestFilesInnerAnyOf2 {
-    pub fn new(path: String, lfs: models::PostByOrgByRepoCommitsRequestFilesInnerAnyOf2Lfs) -> PostByOrgByRepoCommitsRequestFilesInnerAnyOf2 {
+    pub fn new(path: Option<String>, lfs: models::PostByOrgByRepoCommitsRequestFilesInnerAnyOf2Lfs) -> PostByOrgByRepoCommitsRequestFilesInnerAnyOf2 {
         PostByOrgByRepoCommitsRequestFilesInnerAnyOf2 {
             path,
             lfs,

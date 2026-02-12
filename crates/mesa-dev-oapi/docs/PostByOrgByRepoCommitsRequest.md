@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**branch** | **String** |  | 
-**message** | **String** |  | 
+**branch** | Option<**String**> |  | 
+**message** | Option<**String**> |  | 
 **author** | [**models::GetByOrgByRepoCommits200ResponseCommitsInnerCommitter**](GetByOrgByRepoCommits200ResponseCommitsInnerCommitter.md) |  | 
 **base_sha** | Option<**String**> |  | [optional]
 **files** | [**Vec<models::PostByOrgByRepoCommitsRequestFilesInner>**](PostByOrgByRepoCommitsRequestFilesInner.md) |  | 

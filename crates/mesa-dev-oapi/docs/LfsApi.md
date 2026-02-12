@@ -43,7 +43,7 @@ Name | Type | Description  | Required | Notes
 
 ## post_by_org_by_repo_lfs_objects_download
 
-> models::PostByOrgByRepoLfsObjects200Response post_by_org_by_repo_lfs_objects_download(org, repo, post_by_org_by_repo_lfs_objects_request)
+> models::PostByOrgByRepoLfsObjects200Response post_by_org_by_repo_lfs_objects_download(org, repo, post_by_org_by_repo_lfs_objects_download_request)
 Download LFS objects
 
 Request pre-signed URLs to download large files from LFS storage.
@@ -55,7 +55,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**post_by_org_by_repo_lfs_objects_request** | Option<[**PostByOrgByRepoLfsObjectsRequest**](PostByOrgByRepoLfsObjectsRequest.md)> |  |  |
+**post_by_org_by_repo_lfs_objects_download_request** | Option<[**PostByOrgByRepoLfsObjectsDownloadRequest**](PostByOrgByRepoLfsObjectsDownloadRequest.md)> |  |  |
 
 ### Return type
 

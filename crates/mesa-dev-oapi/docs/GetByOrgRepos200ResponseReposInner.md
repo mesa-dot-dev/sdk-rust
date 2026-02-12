@@ -10,7 +10,6 @@ Name | Type | Description | Notes
 **default_branch** | Option<**String**> |  | 
 **head_sha** | Option<**String**> |  | 
 **size_bytes** | **f64** |  | 
-**last_push_at** | Option<**String**> |  | 
 **created_at** | Option<**String**> |  | 
 **upstream** | Option<[**models::GetByOrgRepos200ResponseReposInnerUpstream**](GetByOrgRepos200ResponseReposInnerUpstream.md)> |  | 
 

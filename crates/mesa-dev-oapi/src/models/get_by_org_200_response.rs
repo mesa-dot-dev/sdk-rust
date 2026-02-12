@@ -15,17 +15,14 @@ use serde::{Deserialize, Serialize};
 pub struct GetByOrg200Response {
     #[serde(rename = "created_at", deserialize_with = "Option::deserialize")]
     pub created_at: Option<String>,
-    #[serde(rename = "last_commit_at", deserialize_with = "Option::deserialize")]
-    pub last_commit_at: Option<String>,
     #[serde(rename = "num_repos")]
     pub num_repos: i64,
 }
 
 impl GetByOrg200Response {
-    pub fn new(created_at: Option<String>, last_commit_at: Option<String>, num_repos: i64) -> GetByOrg200Response {
+    pub fn new(created_at: Option<String>, num_repos: i64) -> GetByOrg200Response {
         GetByOrg200Response {
             created_at,
-            last_commit_at,
             num_repos,
         }
     }

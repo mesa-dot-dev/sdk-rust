@@ -18,6 +18,11 @@ pub struct PostByOrgReposRequestUpstream {
     pub uri: String,
     #[serde(rename = "autosync", skip_serializing_if = "Option::is_none")]
     pub autosync: Option<models::PostByOrgReposRequestUpstreamAutosync>,
+    #[serde(rename = "token", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
+    pub token: Option<Option<String>>,
+    /// Username for git credential auth. Defaults to \"x-access-token\". Use actual username for Bitbucket app passwords.
+    #[serde(rename = "token_username", skip_serializing_if = "Option::is_none")]
+    pub token_username: Option<String>,
 }
 
 impl PostByOrgReposRequestUpstream {
@@ -25,6 +30,8 @@ impl PostByOrgReposRequestUpstream {
         PostByOrgReposRequestUpstream {
             uri,
             autosync: None,
+            token: None,
+            token_username: None,
         }
     }
 }

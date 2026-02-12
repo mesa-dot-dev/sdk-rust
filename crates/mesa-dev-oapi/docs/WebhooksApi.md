@@ -24,7 +24,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**webhook_id** | **String** |  | [required] |
+**webhook_id** | Option<**String**> |  | [required] |
 
 ### Return type
 

@@ -13,8 +13,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PostByOrgByRepoCommitsRequestFilesInnerAnyOf {
-    #[serde(rename = "path")]
-    pub path: String,
+    #[serde(rename = "path", deserialize_with = "Option::deserialize")]
+    pub path: Option<String>,
     #[serde(rename = "content", deserialize_with = "Option::deserialize")]
     pub content: Option<String>,
     #[serde(rename = "encoding", skip_serializing_if = "Option::is_none")]
@@ -24,7 +24,7 @@ pub struct PostByOrgByRepoCommitsRequestFilesInnerAnyOf {
 }
 
 impl PostByOrgByRepoCommitsRequestFilesInnerAnyOf {
-    pub fn new(path: String, content: Option<String>) -> PostByOrgByRepoCommitsRequestFilesInnerAnyOf {
+    pub fn new(path: Option<String>, content: Option<String>) -> PostByOrgByRepoCommitsRequestFilesInnerAnyOf {
         PostByOrgByRepoCommitsRequestFilesInnerAnyOf {
             path,
             content,

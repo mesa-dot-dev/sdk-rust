@@ -13,14 +13,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PostByOrgByRepoCommitsRequestFilesInnerAnyOf1 {
-    #[serde(rename = "path")]
-    pub path: String,
+    #[serde(rename = "path", deserialize_with = "Option::deserialize")]
+    pub path: Option<String>,
     #[serde(rename = "action")]
     pub action: Action,
 }
 
 impl PostByOrgByRepoCommitsRequestFilesInnerAnyOf1 {
-    pub fn new(path: String, action: Action) -> PostByOrgByRepoCommitsRequestFilesInnerAnyOf1 {
+    pub fn new(path: Option<String>, action: Action) -> PostByOrgByRepoCommitsRequestFilesInnerAnyOf1 {
         PostByOrgByRepoCommitsRequestFilesInnerAnyOf1 {
             path,
             action,

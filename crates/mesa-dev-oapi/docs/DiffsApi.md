@@ -22,8 +22,8 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**base** | **String** |  | [required] |
-**head** | **String** |  | [required] |
+**base** | Option<**String**> |  | [required] |
+**head** | Option<**String**> |  | [required] |
 
 ### Return type
 

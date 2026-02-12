@@ -42,6 +42,7 @@ Class | Method | HTTP request | Description
 *DiffsApi* | [**get_by_org_by_repo_diff**](docs/DiffsApi.md#get_by_org_by_repo_diff) | **GET** /{org}/{repo}/diff | Get diff
 *LfsApi* | [**post_by_org_by_repo_lfs_objects**](docs/LfsApi.md#post_by_org_by_repo_lfs_objects) | **POST** /{org}/{repo}/lfs/objects | Upload LFS objects
 *LfsApi* | [**post_by_org_by_repo_lfs_objects_download**](docs/LfsApi.md#post_by_org_by_repo_lfs_objects_download) | **POST** /{org}/{repo}/lfs/objects/download | Download LFS objects
+*MergeApi* | [**post_by_org_by_repo_merge_by_base**](docs/MergeApi.md#post_by_org_by_repo_merge_by_base) | **POST** /{org}/{repo}/merge/{base} | Merge branches
 *OrgApi* | [**get_by_org**](docs/OrgApi.md#get_by_org) | **GET** /{org} | Get organization
 *ReposApi* | [**delete_by_org_by_repo**](docs/ReposApi.md#delete_by_org_by_repo) | **DELETE** /{org}/{repo} | Delete repository
 *ReposApi* | [**get_by_org_by_repo**](docs/ReposApi.md#get_by_org_by_repo) | **GET** /{org}/{repo} | Get repository
@@ -121,8 +122,13 @@ Class | Method | HTTP request | Description
  - [PostByOrgByRepoLfsObjects200Response](docs/PostByOrgByRepoLfsObjects200Response.md)
  - [PostByOrgByRepoLfsObjects200ResponseObjectsInner](docs/PostByOrgByRepoLfsObjects200ResponseObjectsInner.md)
  - [PostByOrgByRepoLfsObjects200ResponseObjectsInnerError](docs/PostByOrgByRepoLfsObjects200ResponseObjectsInnerError.md)
+ - [PostByOrgByRepoLfsObjectsDownloadRequest](docs/PostByOrgByRepoLfsObjectsDownloadRequest.md)
+ - [PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner](docs/PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner.md)
  - [PostByOrgByRepoLfsObjectsRequest](docs/PostByOrgByRepoLfsObjectsRequest.md)
  - [PostByOrgByRepoLfsObjectsRequestObjectsInner](docs/PostByOrgByRepoLfsObjectsRequestObjectsInner.md)
+ - [PostByOrgByRepoMergeByBase200Response](docs/PostByOrgByRepoMergeByBase200Response.md)
+ - [PostByOrgByRepoMergeByBaseRequest](docs/PostByOrgByRepoMergeByBaseRequest.md)
+ - [PostByOrgByRepoMergeByBaseRequestAuthor](docs/PostByOrgByRepoMergeByBaseRequestAuthor.md)
  - [PostByOrgByRepoWebhooks201Response](docs/PostByOrgByRepoWebhooks201Response.md)
  - [PostByOrgByRepoWebhooksRequest](docs/PostByOrgByRepoWebhooksRequest.md)
  - [PostByOrgRepos201Response](docs/PostByOrgRepos201Response.md)
