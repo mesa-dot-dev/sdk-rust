@@ -26,8 +26,8 @@ impl DiffClient<'_> {
             self.repo.org.config,
             self.repo.org.org,
             self.repo.repo,
-            base,
-            head,
+            Some(base),
+            Some(head),
         )
         .await
     }

@@ -69,7 +69,7 @@ impl WebhooksClient<'_> {
             self.repo.org.config,
             self.repo.org.org,
             self.repo.repo,
-            webhook_id,
+            Some(webhook_id),
         )
         .await
     }

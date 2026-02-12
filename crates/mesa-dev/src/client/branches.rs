@@ -98,7 +98,7 @@ impl<'a> BranchesClient<'a> {
             self.repo.org.config,
             self.repo.org.org,
             self.repo.repo,
-            branch,
+            Some(branch),
         )
         .await
     }
