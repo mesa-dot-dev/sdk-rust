@@ -23,6 +23,6 @@ async fn test_delete_repository() {
     assert!(resp.success);
 
     // Verify it's gone
-    let get_result = repos_api::get_by_org_by_repo(&config, &org, &name).await;
+    let get_result = repos_api::get_by_org_by_repo(&config, &org, Some(&name)).await;
     assert!(get_result.is_err());
 }

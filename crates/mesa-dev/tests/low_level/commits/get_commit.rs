@@ -10,7 +10,7 @@ async fn test_get_commit(ctx: &mut RepoWithCommitContext) {
         &ctx.config,
         &ctx.org,
         &ctx.repo_name,
-        &ctx.commit_sha,
+        Some(&ctx.commit_sha),
     )
     .await
     .unwrap();

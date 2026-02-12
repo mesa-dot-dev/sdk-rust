@@ -21,8 +21,8 @@ async fn test_get_diff(ctx: &mut RepoWithCommitContext) {
         &ctx.config,
         &ctx.org,
         &ctx.repo_name,
-        &ctx.commit_sha,
-        &commit2.sha,
+        Some(&ctx.commit_sha),
+        Some(&commit2.sha),
     )
     .await
     .unwrap();

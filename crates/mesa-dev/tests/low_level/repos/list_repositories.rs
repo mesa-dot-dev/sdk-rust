@@ -7,7 +7,7 @@ async fn test_list_repositories() {
     let config = common::test_config();
     let org = common::test_org();
 
-    let resp = repos_api::get_by_org_repos(&config, &org, None, None)
+    let resp = repos_api::get_by_org_repos(&config, Some(&org), None, None)
         .await
         .unwrap();
 

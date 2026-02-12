@@ -8,7 +8,7 @@ async fn test_hl_delete_webhook(ctx: &mut HlRepoContext) {
     // Create a webhook first
     let req = models::PostByOrgByRepoWebhooksRequest {
         url: "https://example.com/hook-to-delete".to_string(),
-        secret: Some("test-secret".to_string()),
+        secret: Some(Some("test-secret".to_string())),
         events: Some(vec![
             models::post_by_org_by_repo_webhooks_request::Events::Push,
         ]),
