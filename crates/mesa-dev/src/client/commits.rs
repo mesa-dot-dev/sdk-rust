@@ -86,7 +86,7 @@ impl<'a> CommitsClient<'a> {
             self.repo.org.config,
             self.repo.org.org,
             self.repo.repo,
-            sha,
+            Some(sha),
         )
         .await
     }

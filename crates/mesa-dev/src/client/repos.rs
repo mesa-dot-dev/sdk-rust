@@ -48,7 +48,7 @@ impl<'a> ReposClient<'a> {
         let org = self.org.org;
 
         paginate(limit, move |cursor, lim| async move {
-            repos_api::get_by_org_repos(config, org, cursor.as_deref(), lim).await
+            repos_api::get_by_org_repos(config, Some(org), cursor.as_deref(), lim).await
         })
     }
 

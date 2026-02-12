@@ -40,7 +40,7 @@ impl LfsClient<'_> {
     #[tracing::instrument(skip(self, request), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
     pub async fn download(
         &self,
-        request: models::PostByOrgByRepoLfsObjectsRequest,
+        request: models::PostByOrgByRepoLfsObjectsDownloadRequest,
     ) -> Result<
         models::PostByOrgByRepoLfsObjects200Response,
         Error<lfs_api::PostByOrgByRepoLfsObjectsDownloadError>,

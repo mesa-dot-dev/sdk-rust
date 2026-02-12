@@ -23,7 +23,7 @@ impl RepoClient<'_> {
     pub async fn get(
         &self,
     ) -> Result<models::PostByOrgRepos201Response, Error<repos_api::GetByOrgByRepoError>> {
-        repos_api::get_by_org_by_repo(self.org.config, self.org.org, self.repo).await
+        repos_api::get_by_org_by_repo(self.org.config, self.org.org, Some(self.repo)).await
     }
 
     /// Permanently delete this repository and all its data.
