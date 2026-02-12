@@ -14,7 +14,7 @@ mesa_dev_oapi = { version = "1.6.2", path = "../mesa-dev-oapi" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_path_to_error = "0.1"
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.12", features = ["json", "http2"] }
 reqwest-middleware = "0.4"
 async-stream = "0.3"
 futures-core = "0.3"
