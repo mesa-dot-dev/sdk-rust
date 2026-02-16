@@ -75,9 +75,9 @@ jobs:
 
       - name: Bump minor version
         run: |
-          cargo set-version --bump minor -p mesa-dev-oapi
+          cargo set-version --package mesa-dev-oapi --bump minor
           NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa-dev-oapi") | .version')
-          cargo set-version "${NEW_VERSION}" -p mesa-dev
+          cargo set-version --package mesa-dev "${NEW_VERSION}"
 
       - name: Commit and push version bump
         run: |
