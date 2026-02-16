@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-ci-image:
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
 
@@ -44,9 +44,39 @@ jobs:
           push: true
           tags: ghcr.io/mesa-dot-dev/sdk-rust-ci:latest
 
-  lint-and-release:
+  lint:
     needs: build-ci-image
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    container:
+      image: ghcr.io/mesa-dot-dev/sdk-rust-ci:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: staged
+          fetch-depth: 0
+
+      - name: Run clippy on mesa-dev
+        run: cargo clippy -p mesa-dev --no-deps -- -D warnings
+
+  format:
+    needs: build-ci-image
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    container:
+      image: ghcr.io/mesa-dot-dev/sdk-rust-ci:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: staged
+          fetch-depth: 0
+
+      - name: Check formatting of mesa-dev
+        run: cargo fmt -p mesa-dev --check
+
+  test:
+    needs: build-ci-image
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     container:
       image: ghcr.io/mesa-dot-dev/sdk-rust-ci:latest
       credentials:
@@ -60,12 +90,6 @@ jobs:
           ref: staged
           fetch-depth: 0
 
-      - name: Run clippy on mesa-dev
-        run: cargo clippy -p mesa-dev --no-deps -- -D warnings
-
-      - name: Check formatting of mesa-dev
-        run: cargo fmt -p mesa-dev --check
-
       - name: Run tests
         timeout-minutes: 10
         env:
@@ -73,11 +97,27 @@ jobs:
           MESA_TEST_ORG: ${{ secrets.MESA_TEST_ORG }}
         run: cargo test --workspace
 
+  release:
+    needs: [lint, format, test]
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    container:
+      image: ghcr.io/mesa-dot-dev/sdk-rust-ci:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: staged
+          fetch-depth: 0
+
       - name: Bump minor version
         run: |
-          cargo set-version --package mesa-dev-oapi --bump minor
+          cargo set-version --manifest-path crates/mesa-dev-oapi/Cargo.toml --bump minor
           NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa-dev-oapi") | .version')
-          cargo set-version --package mesa-dev "${NEW_VERSION}"
+          cargo set-version --manifest-path crates/mesa-dev/Cargo.toml "${NEW_VERSION}"
 
       - name: Commit and push version bump
         run: |
@@ -97,16 +137,19 @@ jobs:
 
   on-failure:
     runs-on: blacksmith-2vcpu-ubuntu-2404
-    if: ${{ always() && (needs.lint-and-release.result == 'failure' || needs.lint-and-release.result == 'timed_out') }}
+    if: ${{ always() && (needs.*.result == 'failure' || needs.*.result == 'timed_out') }}
     needs:
-      - lint-and-release
       - build-ci-image
+      - format
+      - lint
+      - release
+      - test
     steps:
     - uses: actions/checkout@v2
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_USERNAME: mesa-gh
-        SLACK_TITLE: Workflow ${{ needs.lint-and-release.result }}
+        SLACK_TITLE: Workflow ${{ needs.*.result }}
         MSG_MINIMAL: actions url
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
