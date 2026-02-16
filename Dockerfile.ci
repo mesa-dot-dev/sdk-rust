@@ -1,9 +1,9 @@
 FROM alpine:latest
 
-RUN apk add --no-cache curl gcc musl-dev pkgconfig openssl-dev
-RUN apk add --no-cache dasel
+RUN apk add --no-cache curl gcc musl-dev pkgconfig openssl-dev openssl-libs-static git jq
 ENV RUSTUP_HOME=/usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo
 ENV PATH="/usr/local/cargo/bin:${PATH}"
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --component clippy --component rustfmt
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --component clippy --component rustfmt \
+    && cargo install cargo-edit

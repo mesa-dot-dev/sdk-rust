@@ -74,25 +74,19 @@ jobs:
         run: cargo test --workspace
 
       - name: Bump minor version
-        id: bump
         run: |
-          for crate in crates/mesa-dev/Cargo.toml crates/mesa-dev-oapi/Cargo.toml; do
-            CURRENT=$(dasel -f "$crate" '.package.version')
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-            NEW="${MAJOR}.$((MINOR + 1)).0"
-            dasel put -f "$crate" -t string -v "$NEW" '.package.version'
-          done
-
-          NEW_VERSION=$(dasel -f crates/mesa-dev/Cargo.toml '.package.version')
-          cargo check -p mesa-dev
+          cargo set-version --bump minor -p mesa-dev-oapi
+          NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa-dev-oapi") | .version')
+          cargo set-version "${NEW_VERSION}" -p mesa-dev
 
       - name: Commit and push version bump
         run: |
           git config user.name "mesa-ci[bot]"
           git config user.email "ci-bot@mesa.dev"
 
+          NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa-dev") | .version')
           git add crates/mesa-dev/Cargo.toml crates/mesa-dev-oapi/Cargo.toml Cargo.lock
-          git commit -m "Bump mesa-dev to ${{ steps.bump.outputs.new_version }}"
+          git commit -m "Bump mesa-dev to ${NEW_VERSION}"
           git push origin staged
 
       - name: Fast-forward merge staged into main
