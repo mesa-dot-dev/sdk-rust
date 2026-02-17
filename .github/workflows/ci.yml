@@ -121,8 +121,9 @@ jobs:
 
       - name: Commit and push version bump
         run: |
-          git config user.name "mesa-ci[bot]"
-          git config user.email "ci-bot@mesa.dev"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "mesa-ci[bot]"
+          git config --global user.email "ci-bot@mesa.dev"
 
           NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa-dev") | .version')
           git add crates/mesa-dev/Cargo.toml crates/mesa-dev-oapi/Cargo.toml Cargo.lock
