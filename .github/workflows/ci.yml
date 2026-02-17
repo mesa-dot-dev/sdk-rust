@@ -115,6 +115,7 @@ jobs:
           cargo set-version --manifest-path crates/mesa-dev-oapi/Cargo.toml --bump minor
           NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa_dev_oapi") | .version')
           cargo set-version --manifest-path crates/mesa-dev/Cargo.toml "${NEW_VERSION}"
+          cargo add --manifest-path crates/mesa-dev/Cargo.toml --path crates/mesa-dev-oapi --no-default-features --features rustls-tls "mesa_dev_oapi@${NEW_VERSION}"
 
       - name: Regenerate lockfile
         run: cargo update --workspace
