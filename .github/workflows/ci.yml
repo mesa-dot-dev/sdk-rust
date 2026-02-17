@@ -56,6 +56,9 @@ jobs:
           ref: staged
           fetch-depth: 1
 
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
+
       - name: Run clippy on mesa-dev
         run: cargo clippy -p mesa-dev --no-deps -- -D warnings
 
@@ -86,6 +89,9 @@ jobs:
         with:
           ref: staged
           fetch-depth: 1
+
+      - name: Cache cargo registry and build
+        uses: Swatinem/rust-cache@v2
 
       - name: Run tests
         timeout-minutes: 10
