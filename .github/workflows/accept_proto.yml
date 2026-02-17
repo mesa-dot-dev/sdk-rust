@@ -61,7 +61,7 @@ jobs:
 
       - name: Download proto artifact from depot
         env:
-          GH_TOKEN: ${{ secrets.CI_GIT_PAT }}
+          GH_TOKEN: ${{ secrets.DEPOT_TOKEN }}
           RUN_ID: ${{ github.event.client_payload.run_id }}
           ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
         run: |
