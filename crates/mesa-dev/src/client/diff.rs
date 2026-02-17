@@ -23,7 +23,7 @@ impl DiffClient<'_> {
     ) -> Result<models::GetByOrgByRepoDiff200Response, Error<diffs_api::GetByOrgByRepoDiffError>>
     {
         diffs_api::get_by_org_by_repo_diff(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             Some(base),

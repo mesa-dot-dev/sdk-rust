@@ -51,7 +51,7 @@ impl<'a> CommitsClient<'a> {
             limit,
             "listing commits"
         );
-        let config = self.repo.org.config;
+        let config = &self.repo.org.client.config;
         let org = self.repo.org.org;
         let repo = self.repo.repo;
 
@@ -82,7 +82,7 @@ impl<'a> CommitsClient<'a> {
         Error<commits_api::GetByOrgByRepoCommitsByShaError>,
     > {
         commits_api::get_by_org_by_repo_commits_by_sha(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             Some(sha),

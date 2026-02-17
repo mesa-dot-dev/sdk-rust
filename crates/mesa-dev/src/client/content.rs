@@ -25,7 +25,7 @@ impl ContentClient<'_> {
         depth: Option<u64>,
     ) -> Result<content::Content, Error<content::GetContentError>> {
         content::get_content(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             r#ref,

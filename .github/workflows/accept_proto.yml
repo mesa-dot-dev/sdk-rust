@@ -36,7 +36,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: feat/grpc
+          ref: staged
 
       - name: Install buf CLI
         uses: bufbuild/buf-setup-action@v1
@@ -96,4 +96,4 @@ jobs:
           git add crates/mesa-dev/proto/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "chore: update proto files from depot@${SOURCE_COMMIT}"
-          git push origin feat/grpc
+          git push origin staged

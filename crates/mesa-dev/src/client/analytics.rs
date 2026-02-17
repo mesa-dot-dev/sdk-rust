@@ -24,7 +24,7 @@ impl AnalyticsClient<'_> {
         Error<agent_blame_api::GetByOrgByRepoAnalyticsError>,
     > {
         agent_blame_api::get_by_org_by_repo_analytics(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             period,
@@ -45,7 +45,7 @@ impl AnalyticsClient<'_> {
         Error<agent_blame_api::PostByOrgByRepoAnalyticsRefreshError>,
     > {
         agent_blame_api::post_by_org_by_repo_analytics_refresh(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
         )
@@ -67,7 +67,7 @@ impl AnalyticsClient<'_> {
         Error<agent_blame_api::GetByOrgByRepoAgentblameError>,
     > {
         agent_blame_api::get_by_org_by_repo_agentblame(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             base,

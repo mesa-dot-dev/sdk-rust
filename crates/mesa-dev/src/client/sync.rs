@@ -20,8 +20,12 @@ impl SyncClient<'_> {
         &self,
     ) -> Result<models::GetByOrgByRepoSync200Response, Error<repos_api::GetByOrgByRepoSyncError>>
     {
-        repos_api::get_by_org_by_repo_sync(self.repo.org.config, self.repo.org.org, self.repo.repo)
-            .await
+        repos_api::get_by_org_by_repo_sync(
+            &self.repo.org.client.config,
+            self.repo.org.org,
+            self.repo.repo,
+        )
+        .await
     }
 
     /// Trigger a sync from the upstream repository (waits for completion).
@@ -34,7 +38,11 @@ impl SyncClient<'_> {
         &self,
     ) -> Result<models::DeleteByOrgApiKeysById200Response, Error<repos_api::PostByOrgByRepoSyncError>>
     {
-        repos_api::post_by_org_by_repo_sync(self.repo.org.config, self.repo.org.org, self.repo.repo)
-            .await
+        repos_api::post_by_org_by_repo_sync(
+            &self.repo.org.client.config,
+            self.repo.org.org,
+            self.repo.repo,
+        )
+        .await
     }
 }

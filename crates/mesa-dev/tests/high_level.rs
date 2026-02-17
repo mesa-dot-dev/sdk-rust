@@ -74,3 +74,17 @@ mod hl_revoke_api_key;
 mod hl_get_analytics;
 #[path = "high_level/analytics/refresh_analytics.rs"]
 mod hl_refresh_analytics;
+
+// Changes (gRPC)
+#[path = "high_level/changes/create_change.rs"]
+mod hl_create_change;
+#[path = "high_level/changes/create_file.rs"]
+mod hl_create_file;
+#[path = "high_level/changes/delete_file.rs"]
+mod hl_delete_file;
+#[path = "high_level/changes/modify_file.rs"]
+mod hl_modify_file;
+#[path = "high_level/changes/move_file.rs"]
+mod hl_move_file;
+#[path = "high_level/changes/write_then_read.rs"]
+mod hl_write_then_read;

@@ -23,7 +23,7 @@ impl WebhooksClient<'_> {
         Error<webhooks_api::GetByOrgByRepoWebhooksError>,
     > {
         webhooks_api::get_by_org_by_repo_webhooks(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
         )
@@ -44,7 +44,7 @@ impl WebhooksClient<'_> {
         Error<webhooks_api::PostByOrgByRepoWebhooksError>,
     > {
         webhooks_api::post_by_org_by_repo_webhooks(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             Some(request),
@@ -66,7 +66,7 @@ impl WebhooksClient<'_> {
         Error<webhooks_api::DeleteByOrgByRepoWebhooksByWebhookIdError>,
     > {
         webhooks_api::delete_by_org_by_repo_webhooks_by_webhook_id(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             Some(webhook_id),

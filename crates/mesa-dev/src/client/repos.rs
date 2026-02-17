@@ -44,7 +44,7 @@ impl<'a> ReposClient<'a> {
         >,
     > + 'a {
         tracing::debug!(org = self.org.org, limit, "listing repos");
-        let config = self.org.config;
+        let config = &self.org.client.config;
         let org = self.org.org;
 
         paginate(limit, move |cursor, lim| async move {
@@ -62,7 +62,7 @@ impl<'a> ReposClient<'a> {
         &self,
         request: models::PostByOrgReposRequest,
     ) -> Result<models::PostByOrgRepos201Response, Error<repos_api::PostByOrgReposError>> {
-        repos_api::post_by_org_repos(self.org.config, self.org.org, Some(request)).await
+        repos_api::post_by_org_repos(&self.org.client.config, self.org.org, Some(request)).await
     }
 
     /// Navigate to a specific repository.

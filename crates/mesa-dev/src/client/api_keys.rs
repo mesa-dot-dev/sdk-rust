@@ -19,7 +19,7 @@ impl ApiKeysClient<'_> {
     pub async fn list(
         &self,
     ) -> Result<models::GetByOrgApiKeys200Response, Error<admin_api::GetByOrgApiKeysError>> {
-        admin_api::get_by_org_api_keys(self.org.config, self.org.org).await
+        admin_api::get_by_org_api_keys(&self.org.client.config, self.org.org).await
     }
 
     /// Create a new API key.
@@ -32,7 +32,7 @@ impl ApiKeysClient<'_> {
         &self,
         request: models::PostByOrgApiKeysRequest,
     ) -> Result<models::PostByOrgApiKeys201Response, Error<admin_api::PostByOrgApiKeysError>> {
-        admin_api::post_by_org_api_keys(self.org.config, self.org.org, Some(request)).await
+        admin_api::post_by_org_api_keys(&self.org.client.config, self.org.org, Some(request)).await
     }
 
     /// Revoke an API key by its ID.
@@ -48,6 +48,6 @@ impl ApiKeysClient<'_> {
         models::DeleteByOrgApiKeysById200Response,
         Error<admin_api::DeleteByOrgApiKeysByIdError>,
     > {
-        admin_api::delete_by_org_api_keys_by_id(self.org.config, id, self.org.org).await
+        admin_api::delete_by_org_api_keys_by_id(&self.org.client.config, id, self.org.org).await
     }
 }
