@@ -113,7 +113,7 @@ jobs:
       - name: Bump minor version
         run: |
           cargo set-version --manifest-path crates/mesa-dev-oapi/Cargo.toml --bump minor
-          NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa-dev-oapi") | .version')
+          NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mesa_dev_oapi") | .version')
           cargo set-version --manifest-path crates/mesa-dev/Cargo.toml "${NEW_VERSION}"
 
       - name: Regenerate lockfile
