@@ -23,22 +23,19 @@ pub struct GetByOrgByRepoContent200ResponseAnyOf2EntriesInner {
     pub sha: String,
     #[serde(rename = "size")]
     pub size: f64,
-    #[serde(rename = "executable")]
-    pub executable: bool,
-    #[serde(rename = "last_commit_at")]
-    pub last_commit_at: String,
+    #[serde(rename = "mode")]
+    pub mode: i32,
 }
 
 impl GetByOrgByRepoContent200ResponseAnyOf2EntriesInner {
-    pub fn new(r#type: Type, name: String, path: String, sha: String, size: f64, executable: bool, last_commit_at: String) -> GetByOrgByRepoContent200ResponseAnyOf2EntriesInner {
+    pub fn new(r#type: Type, name: String, path: String, sha: String, size: f64, mode: i32) -> GetByOrgByRepoContent200ResponseAnyOf2EntriesInner {
         GetByOrgByRepoContent200ResponseAnyOf2EntriesInner {
             r#type,
             name,
             path,
             sha,
             size,
-            executable,
-            last_commit_at,
+            mode,
         }
     }
 }

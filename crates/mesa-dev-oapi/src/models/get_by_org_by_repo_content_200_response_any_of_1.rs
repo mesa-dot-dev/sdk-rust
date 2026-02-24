@@ -27,14 +27,12 @@ pub struct GetByOrgByRepoContent200ResponseAnyOf1 {
     pub encoding: Encoding,
     #[serde(rename = "content", deserialize_with = "Option::deserialize")]
     pub content: Option<String>,
-    #[serde(rename = "executable")]
-    pub executable: bool,
-    #[serde(rename = "last_commit_at", deserialize_with = "Option::deserialize")]
-    pub last_commit_at: Option<String>,
+    #[serde(rename = "mode")]
+    pub mode: i64,
 }
 
 impl GetByOrgByRepoContent200ResponseAnyOf1 {
-    pub fn new(r#type: Type, name: Option<String>, path: Option<String>, sha: Option<String>, size: f64, encoding: Encoding, content: Option<String>, executable: bool, last_commit_at: Option<String>) -> GetByOrgByRepoContent200ResponseAnyOf1 {
+    pub fn new(r#type: Type, name: Option<String>, path: Option<String>, sha: Option<String>, size: f64, encoding: Encoding, content: Option<String>, mode: i64) -> GetByOrgByRepoContent200ResponseAnyOf1 {
         GetByOrgByRepoContent200ResponseAnyOf1 {
             r#type,
             name,
@@ -43,8 +41,7 @@ impl GetByOrgByRepoContent200ResponseAnyOf1 {
             size,
             encoding,
             content,
-            executable,
-            last_commit_at,
+            mode,
         }
     }
 }

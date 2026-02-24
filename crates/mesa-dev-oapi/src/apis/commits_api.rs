@@ -43,20 +43,6 @@ pub enum GetByOrgByRepoCommitsByShaError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`post_by_org_by_repo_commits`]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum PostByOrgByRepoCommitsError {
-    Status400(models::PostByOrgApiKeys400Response),
-    Status401(models::PostByOrgApiKeys400Response),
-    Status403(models::PostByOrgApiKeys400Response),
-    Status404(models::PostByOrgApiKeys400Response),
-    Status406(models::PostByOrgApiKeys400Response),
-    Status409(models::PostByOrgApiKeys400Response),
-    Status500(models::PostByOrgApiKeys400Response),
-    UnknownValue(serde_json::Value),
-}
-
 
 /// List commits for a repository from a specific ref
 pub async fn get_by_org_by_repo_commits(configuration: &configuration::Configuration, org: &str, repo: &str, cursor: Option<&str>, limit: Option<u8>, r#ref: Option<&str>) -> Result<models::GetByOrgByRepoCommits200Response, Error<GetByOrgByRepoCommitsError>> {
@@ -149,49 +135,6 @@ pub async fn get_by_org_by_repo_commits_by_sha(configuration: &configuration::Co
     } else {
         let content = resp.text().await?;
         let entity: Option<GetByOrgByRepoCommitsByShaError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-/// Programmatically create a commit with file edits
-pub async fn post_by_org_by_repo_commits(configuration: &configuration::Configuration, org: &str, repo: &str, post_by_org_by_repo_commits_request: Option<models::PostByOrgByRepoCommitsRequest>) -> Result<models::PostByOrgByRepoCommits201Response, Error<PostByOrgByRepoCommitsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_org = org;
-    let p_path_repo = repo;
-    let p_body_post_by_org_by_repo_commits_request = post_by_org_by_repo_commits_request;
-
-    let uri_str = format!("{}/{org}/{repo}/commits", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref token) = configuration.bearer_access_token {
-        req_builder = req_builder.bearer_auth(token.to_owned());
-    };
-    req_builder = req_builder.json(&p_body_post_by_org_by_repo_commits_request);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_path_to_error::deserialize(&mut serde_json::Deserializer::from_str(&content)).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PostByOrgByRepoCommits201Response`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PostByOrgByRepoCommits201Response`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<PostByOrgByRepoCommitsError> = serde_json::from_str(&content).ok();
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }

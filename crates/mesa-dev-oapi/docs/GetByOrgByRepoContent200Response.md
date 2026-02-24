@@ -11,8 +11,7 @@ Name | Type | Description | Notes
 **size** | **f64** |  | 
 **encoding** | **Encoding** |  (enum: base64) | 
 **content** | **String** |  | 
-**executable** | **bool** |  | 
-**last_commit_at** | **String** |  | 
+**mode** | **i32** |  | 
 **child_count** | **i32** |  | 
 **entries** | [**Vec<models::GetByOrgByRepoContent200ResponseAnyOf2EntriesInner>**](GetByOrgByRepoContent200ResponseAnyOf2EntriesInner.md) |  | 
 **next_cursor** | **String** |  | 

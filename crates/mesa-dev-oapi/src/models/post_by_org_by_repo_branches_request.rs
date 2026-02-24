@@ -15,12 +15,12 @@ use serde::{Deserialize, Serialize};
 pub struct PostByOrgByRepoBranchesRequest {
     #[serde(rename = "name", deserialize_with = "Option::deserialize")]
     pub name: Option<String>,
-    #[serde(rename = "from", deserialize_with = "Option::deserialize")]
-    pub from: Option<String>,
+    #[serde(rename = "from")]
+    pub from: String,
 }
 
 impl PostByOrgByRepoBranchesRequest {
-    pub fn new(name: Option<String>, from: Option<String>) -> PostByOrgByRepoBranchesRequest {
+    pub fn new(name: Option<String>, from: String) -> PostByOrgByRepoBranchesRequest {
         PostByOrgByRepoBranchesRequest {
             name,
             from,

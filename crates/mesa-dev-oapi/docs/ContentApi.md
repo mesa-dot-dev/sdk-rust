@@ -22,7 +22,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**r#ref** | Option<**String**> |  |  |
+**r#ref** | **String** |  | [required] |
 **path** | Option<**String**> |  |  |
 **depth** | Option<**u64**> |  |  |
 

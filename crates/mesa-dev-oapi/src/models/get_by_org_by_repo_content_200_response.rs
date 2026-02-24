@@ -27,10 +27,8 @@ pub struct GetByOrgByRepoContent200Response {
     pub encoding: Encoding,
     #[serde(rename = "content")]
     pub content: String,
-    #[serde(rename = "executable")]
-    pub executable: bool,
-    #[serde(rename = "last_commit_at")]
-    pub last_commit_at: String,
+    #[serde(rename = "mode")]
+    pub mode: i32,
     #[serde(rename = "child_count")]
     pub child_count: i32,
     #[serde(rename = "entries")]
@@ -42,7 +40,7 @@ pub struct GetByOrgByRepoContent200Response {
 }
 
 impl GetByOrgByRepoContent200Response {
-    pub fn new(r#type: Type, name: String, path: String, sha: String, size: f64, encoding: Encoding, content: String, executable: bool, last_commit_at: String, child_count: i32, entries: Vec<models::GetByOrgByRepoContent200ResponseAnyOf2EntriesInner>, next_cursor: String, has_more: bool) -> GetByOrgByRepoContent200Response {
+    pub fn new(r#type: Type, name: String, path: String, sha: String, size: f64, encoding: Encoding, content: String, mode: i32, child_count: i32, entries: Vec<models::GetByOrgByRepoContent200ResponseAnyOf2EntriesInner>, next_cursor: String, has_more: bool) -> GetByOrgByRepoContent200Response {
         GetByOrgByRepoContent200Response {
             r#type,
             name,
@@ -51,8 +49,7 @@ impl GetByOrgByRepoContent200Response {
             size,
             encoding,
             content,
-            executable,
-            last_commit_at,
+            mode,
             child_count,
             entries,
             next_cursor,
