@@ -21,33 +21,13 @@ async fn client_round_trip() {
     let org_name = common::test_org();
     let repo_name = common::unique_name("client");
 
+    // Create and seed the repo via git push.
+    let commit_sha = common::create_seeded_repo(&config, &org_name, &repo_name).await;
+    assert!(!commit_sha.is_empty());
+
     let client = MesaClient::from_configuration(config);
     let org = client.org(&org_name);
-
-    // Create repo
-    let create_resp = org
-        .repos()
-        .create(mesa_dev::models::PostByOrgReposRequest::new(
-            repo_name.clone(),
-        ))
-        .await
-        .expect("create repo failed");
-    assert_eq!(create_resp.name, repo_name);
-
     let repo = org.repos().at(&repo_name);
-
-    // Seed a commit so the repo has content to query
-    let config = common::test_config();
-    let commit = common::create_commit(
-        &config,
-        &org_name,
-        &repo_name,
-        "main",
-        "test commit",
-        &[("hello.txt", "world")],
-    )
-    .await;
-    assert!(!commit.sha.is_empty());
 
     // List branches
     let branches: Vec<_> = repo
@@ -58,10 +38,10 @@ async fn client_round_trip() {
         .expect("list branches failed");
     assert!(!branches.is_empty());
 
-    // Get content
+    // Get content (planventure has a README.md)
     let content = repo
         .content()
-        .get(None, Some("hello.txt"), None)
+        .get(None, Some("README.md"), None)
         .await
         .expect("get content failed");
     assert!(matches!(

@@ -1,10 +1,13 @@
 use mesa_dev::low_level::apis::configuration::Configuration;
-use mesa_dev::low_level::apis::{admin_api, repos_api};
+use mesa_dev::low_level::apis::{admin_api, branches_api, repos_api};
 use mesa_dev::models;
 use mesa_dev::MesaClient;
 use std::env;
 use test_context::AsyncTestContext;
 use uuid::Uuid;
+
+/// Public upstream used to seed repositories with commits via git push.
+const SEED_REPO_URL: &str = "https://github.com/github-samples/planventure.git";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -47,64 +50,62 @@ pub fn unique_name(prefix: &str) -> String {
 }
 
 // ---------------------------------------------------------------------------
-// Commit helper — direct HTTP POST (the SDK no longer exposes commit creation)
+// Git-push seed helper
 // ---------------------------------------------------------------------------
 
-/// Response from the commit endpoint (subset of fields we care about in tests).
-#[derive(Debug, serde::Deserialize)]
-pub struct CommitResponse {
-    pub sha: String,
-}
-
-/// Create a commit with upsert file operations (convenience for tests).
+/// Create a repository, clone a public upstream, and push it to the depot so
+/// the repo is populated with commits. Returns the `head_oid` of `main`.
 ///
-/// Issues a raw HTTP POST because the SDK intentionally does not expose
-/// commit creation.
-pub async fn create_commit(
-    config: &Configuration,
-    org: &str,
-    repo: &str,
-    branch: &str,
-    message: &str,
-    files: &[(&str, &str)],
-) -> CommitResponse {
-    let commit_files: Vec<serde_json::Value> = files
-        .iter()
-        .map(|(path, content)| {
-            serde_json::json!({
-                "action": "upsert",
-                "path": path,
-                "content": content,
-            })
-        })
-        .collect();
+/// This replaces the old `create_commit` helper — the commit-creation API
+/// endpoint no longer exists, so we seed data via `git push` instead.
+pub async fn create_seeded_repo(config: &Configuration, org: &str, name: &str) -> String {
+    // 1. Create the empty repo via the API.
+    let req = models::PostByOrgReposRequest::new(name.to_string());
+    repos_api::post_by_org_repos(config, org, Some(req))
+        .await
+        .expect("failed to create test repo");
 
-    let body = serde_json::json!({
-        "branch": branch,
-        "message": message,
-        "author": { "name": "Test Author", "email": "test@test.com" },
-        "files": commit_files,
-    });
+    // 2. Clone the seed repo into a temp dir and push to the depot.
+    let api_key = config
+        .bearer_access_token
+        .as_deref()
+        .expect("missing API key");
+    let remote_url = format!("https://{api_key}@depot.mesa.dev/{org}/{name}.git");
 
-    let url = format!(
-        "{}/{org}/{repo}/commits",
-        config.base_path,
-        org = org,
-        repo = repo,
-    );
+    let tmp = tempfile::tempdir().expect("failed to create tempdir");
+    let tmp_path = tmp.path();
 
-    let mut req = config.client.request(reqwest::Method::POST, &url);
-    if let Some(ref ua) = config.user_agent {
-        req = req.header(reqwest::header::USER_AGENT, ua.clone());
+    let clone_status = std::process::Command::new("git")
+        .args(["clone", "--quiet", SEED_REPO_URL, "."])
+        .current_dir(tmp_path)
+        .status()
+        .expect("failed to spawn git clone");
+    assert!(clone_status.success(), "git clone failed");
+
+    let push_status = std::process::Command::new("git")
+        .args(["push", "--quiet", &remote_url, "main"])
+        .current_dir(tmp_path)
+        .status()
+        .expect("failed to spawn git push");
+    assert!(push_status.success(), "git push failed");
+
+    // 3. Wait for the depot to index the push.
+    //    Both the branches and commits endpoints need time after a push.
+    let mut head_oid = None;
+    for _ in 0..30 {
+        if let Ok(resp) =
+            branches_api::get_by_org_by_repo_branches(config, org, name, None, Some(1)).await
+        {
+            if let Some(branch) = resp.branches.first() {
+                head_oid = branch.head_oid.clone();
+                break;
+            }
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     }
-    if let Some(ref token) = config.bearer_access_token {
-        req = req.bearer_auth(token.to_owned());
-    }
-    req = req.json(&body);
+    let head_oid = head_oid.expect("timed out waiting for branches after git push");
 
-    let resp = req.send().await.expect("commit request failed");
-    assert!(resp.status().is_success(), "commit request returned {}", resp.status());
-    resp.json().await.expect("failed to parse commit response")
+    head_oid
 }
 
 // ---------------------------------------------------------------------------
@@ -141,7 +142,7 @@ impl AsyncTestContext for RepoContext {
     }
 }
 
-/// A repository with one initial commit (README.md), deleted on teardown.
+/// A repository seeded with commits from a public upstream, deleted on teardown.
 pub struct RepoWithCommitContext {
     pub config: Configuration,
     pub org: String,
@@ -155,26 +156,13 @@ impl AsyncTestContext for RepoWithCommitContext {
         let org = test_org();
         let repo_name = unique_name("repoc");
 
-        let req = models::PostByOrgReposRequest::new(repo_name.clone());
-        repos_api::post_by_org_repos(&config, &org, Some(req))
-            .await
-            .expect("failed to create test repo");
-
-        let commit = create_commit(
-            &config,
-            &org,
-            &repo_name,
-            "main",
-            "Initial commit",
-            &[("README.md", "# Test Repository")],
-        )
-        .await;
+        let commit_sha = create_seeded_repo(&config, &org, &repo_name).await;
 
         Self {
             config,
             org,
             repo_name,
-            commit_sha: commit.sha,
+            commit_sha,
         }
     }
 
@@ -249,7 +237,6 @@ pub fn test_client() -> MesaClient {
     builder.build()
 }
 
-
 // ---------------------------------------------------------------------------
 // High-level contexts
 // ---------------------------------------------------------------------------
@@ -292,8 +279,8 @@ impl AsyncTestContext for HlRepoContext {
     }
 }
 
-/// A repository with one initial commit (README.md), created and deleted via the
-/// high-level client.
+/// A repository seeded with commits from a public upstream, using the
+/// high-level client. Deleted on teardown.
 pub struct HlRepoWithCommitContext {
     pub client: MesaClient,
     pub org: String,
@@ -304,32 +291,17 @@ pub struct HlRepoWithCommitContext {
 impl AsyncTestContext for HlRepoWithCommitContext {
     async fn setup() -> Self {
         let client = test_client();
+        let config = test_config();
         let org = test_org();
         let repo_name = unique_name("hl-repoc");
 
-        client
-            .org(&org)
-            .repos()
-            .create(models::PostByOrgReposRequest::new(repo_name.clone()))
-            .await
-            .expect("failed to create test repo");
-
-        let config = test_config();
-        let commit = create_commit(
-            &config,
-            &org,
-            &repo_name,
-            "main",
-            "Initial commit",
-            &[("README.md", "# Test Repository")],
-        )
-        .await;
+        let commit_sha = create_seeded_repo(&config, &org, &repo_name).await;
 
         Self {
             client,
             org,
             repo_name,
-            commit_sha: commit.sha,
+            commit_sha,
         }
     }
 

@@ -15,5 +15,5 @@ async fn test_hl_get_commit(ctx: &mut HlRepoWithCommitContext) {
         .unwrap();
 
     assert_eq!(resp.sha, ctx.commit_sha);
-    assert_eq!(resp.message, "Initial commit");
+    assert!(!resp.message.is_empty());
 }
