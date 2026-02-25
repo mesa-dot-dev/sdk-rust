@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **org** | **String** |  | 
 **name** | **String** |  | 
 **default_branch** | **String** |  | 
-**head_sha** | Option<**String**> |  | 
+**head_oid** | Option<**String**> |  | 
 **size_bytes** | **f64** |  | 
 **created_at** | **String** |  | 
 **upstream** | Option<[**models::GetByOrgRepos200ResponseReposInnerUpstream**](GetByOrgRepos200ResponseReposInnerUpstream.md)> |  | 

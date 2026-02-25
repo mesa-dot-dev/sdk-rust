@@ -15,17 +15,17 @@ use serde::{Deserialize, Serialize};
 pub struct GetByOrgByRepoBranches200ResponseBranchesInner {
     #[serde(rename = "name", deserialize_with = "Option::deserialize")]
     pub name: Option<String>,
-    #[serde(rename = "head_sha", deserialize_with = "Option::deserialize")]
-    pub head_sha: Option<String>,
+    #[serde(rename = "head_oid", deserialize_with = "Option::deserialize")]
+    pub head_oid: Option<String>,
     #[serde(rename = "is_default")]
     pub is_default: bool,
 }
 
 impl GetByOrgByRepoBranches200ResponseBranchesInner {
-    pub fn new(name: Option<String>, head_sha: Option<String>, is_default: bool) -> GetByOrgByRepoBranches200ResponseBranchesInner {
+    pub fn new(name: Option<String>, head_oid: Option<String>, is_default: bool) -> GetByOrgByRepoBranches200ResponseBranchesInner {
         GetByOrgByRepoBranches200ResponseBranchesInner {
             name,
-            head_sha,
+            head_oid,
             is_default,
         }
     }

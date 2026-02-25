@@ -21,8 +21,8 @@ pub struct GetByOrgRepos200ResponseReposInner {
     pub name: Option<String>,
     #[serde(rename = "default_branch", deserialize_with = "Option::deserialize")]
     pub default_branch: Option<String>,
-    #[serde(rename = "head_sha", deserialize_with = "Option::deserialize")]
-    pub head_sha: Option<String>,
+    #[serde(rename = "head_oid", deserialize_with = "Option::deserialize")]
+    pub head_oid: Option<String>,
     #[serde(rename = "size_bytes")]
     pub size_bytes: f64,
     #[serde(rename = "created_at", deserialize_with = "Option::deserialize")]
@@ -32,13 +32,13 @@ pub struct GetByOrgRepos200ResponseReposInner {
 }
 
 impl GetByOrgRepos200ResponseReposInner {
-    pub fn new(id: Option<String>, org: Option<String>, name: Option<String>, default_branch: Option<String>, head_sha: Option<String>, size_bytes: f64, created_at: Option<String>, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> GetByOrgRepos200ResponseReposInner {
+    pub fn new(id: Option<String>, org: Option<String>, name: Option<String>, default_branch: Option<String>, head_oid: Option<String>, size_bytes: f64, created_at: Option<String>, upstream: Option<models::GetByOrgRepos200ResponseReposInnerUpstream>) -> GetByOrgRepos200ResponseReposInner {
         GetByOrgRepos200ResponseReposInner {
             id,
             org,
             name,
             default_branch,
-            head_sha,
+            head_oid,
             size_bytes,
             created_at,
             upstream,

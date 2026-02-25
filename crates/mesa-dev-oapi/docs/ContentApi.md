@@ -10,7 +10,7 @@ Method | HTTP request | Description
 
 ## get_by_org_by_repo_content
 
-> models::GetByOrgByRepoContent200Response get_by_org_by_repo_content(org, repo, r#ref, path, depth)
+> models::GetByOrgByRepoContent200Response get_by_org_by_repo_content(org, repo, oid, path, depth)
 Get content
 
 Get file content or directory listing at a path. Use Accept: application/json for the JSON union response, or Accept: application/octet-stream for raw file bytes. Directory + octet-stream requests return 406 Not Acceptable.
@@ -22,7 +22,7 @@ Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **org** | **String** |  | [required] |
 **repo** | **String** |  | [required] |
-**r#ref** | **String** |  | [required] |
+**oid** | Option<**String**> |  |  |
 **path** | Option<**String**> |  |  |
 **depth** | Option<**u64**> |  |  |
 

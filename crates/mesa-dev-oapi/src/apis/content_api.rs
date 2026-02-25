@@ -31,18 +31,20 @@ pub enum GetByOrgByRepoContentError {
 
 
 /// Get file content or directory listing at a path. Use Accept: application/json for the JSON union response, or Accept: application/octet-stream for raw file bytes. Directory + octet-stream requests return 406 Not Acceptable.
-pub async fn get_by_org_by_repo_content(configuration: &configuration::Configuration, org: &str, repo: &str, r#ref: &str, path: Option<&str>, depth: Option<u64>) -> Result<models::GetByOrgByRepoContent200Response, Error<GetByOrgByRepoContentError>> {
+pub async fn get_by_org_by_repo_content(configuration: &configuration::Configuration, org: &str, repo: &str, oid: Option<&str>, path: Option<&str>, depth: Option<u64>) -> Result<models::GetByOrgByRepoContent200Response, Error<GetByOrgByRepoContentError>> {
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_org = org;
     let p_path_repo = repo;
-    let p_query_ref = r#ref;
+    let p_query_oid = oid;
     let p_query_path = path;
     let p_query_depth = depth;
 
     let uri_str = format!("{}/{org}/{repo}/content", configuration.base_path, org=crate::apis::urlencode(p_path_org), repo=crate::apis::urlencode(p_path_repo));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("ref", &p_query_ref.to_string())]);
+    if let Some(ref param_value) = p_query_oid {
+        req_builder = req_builder.query(&[("oid", &param_value.to_string())]);
+    }
     if let Some(ref param_value) = p_query_path {
         req_builder = req_builder.query(&[("path", &param_value.to_string())]);
     }

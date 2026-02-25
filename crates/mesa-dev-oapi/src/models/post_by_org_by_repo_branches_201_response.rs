@@ -15,17 +15,17 @@ use serde::{Deserialize, Serialize};
 pub struct PostByOrgByRepoBranches201Response {
     #[serde(rename = "name")]
     pub name: String,
-    #[serde(rename = "head_sha")]
-    pub head_sha: String,
+    #[serde(rename = "head_oid")]
+    pub head_oid: String,
     #[serde(rename = "is_default")]
     pub is_default: bool,
 }
 
 impl PostByOrgByRepoBranches201Response {
-    pub fn new(name: String, head_sha: String, is_default: bool) -> PostByOrgByRepoBranches201Response {
+    pub fn new(name: String, head_oid: String, is_default: bool) -> PostByOrgByRepoBranches201Response {
         PostByOrgByRepoBranches201Response {
             name,
-            head_sha,
+            head_oid,
             is_default,
         }
     }
