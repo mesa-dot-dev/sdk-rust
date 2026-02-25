@@ -135,7 +135,6 @@ pub mod branches_api;
 pub mod commits_api;
 pub mod content_api;
 pub mod diffs_api;
-pub mod lfs_api;
 pub mod org_api;
 pub mod repos_api;
 pub mod webhooks_api;

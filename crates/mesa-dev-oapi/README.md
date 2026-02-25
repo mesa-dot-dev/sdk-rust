@@ -39,8 +39,6 @@ Class | Method | HTTP request | Description
 *CommitsApi* | [**get_by_org_by_repo_commits_by_sha**](docs/CommitsApi.md#get_by_org_by_repo_commits_by_sha) | **GET** /{org}/{repo}/commits/{sha} | Get commit
 *ContentApi* | [**get_by_org_by_repo_content**](docs/ContentApi.md#get_by_org_by_repo_content) | **GET** /{org}/{repo}/content | Get content
 *DiffsApi* | [**get_by_org_by_repo_diff**](docs/DiffsApi.md#get_by_org_by_repo_diff) | **GET** /{org}/{repo}/diff | Get diff
-*LfsApi* | [**post_by_org_by_repo_lfs_objects**](docs/LfsApi.md#post_by_org_by_repo_lfs_objects) | **POST** /{org}/{repo}/lfs/objects | Upload LFS objects
-*LfsApi* | [**post_by_org_by_repo_lfs_objects_download**](docs/LfsApi.md#post_by_org_by_repo_lfs_objects_download) | **POST** /{org}/{repo}/lfs/objects/download | Download LFS objects
 *OrgApi* | [**get_by_org**](docs/OrgApi.md#get_by_org) | **GET** /{org} | Get organization
 *ReposApi* | [**delete_by_org_by_repo**](docs/ReposApi.md#delete_by_org_by_repo) | **DELETE** /{org}/{repo} | Delete repository
 *ReposApi* | [**get_by_org_by_repo**](docs/ReposApi.md#get_by_org_by_repo) | **GET** /{org}/{repo} | Get repository
@@ -110,13 +108,6 @@ Class | Method | HTTP request | Description
  - [PostByOrgApiKeysRequest](docs/PostByOrgApiKeysRequest.md)
  - [PostByOrgByRepoBranches201Response](docs/PostByOrgByRepoBranches201Response.md)
  - [PostByOrgByRepoBranchesRequest](docs/PostByOrgByRepoBranchesRequest.md)
- - [PostByOrgByRepoLfsObjects200Response](docs/PostByOrgByRepoLfsObjects200Response.md)
- - [PostByOrgByRepoLfsObjects200ResponseObjectsInner](docs/PostByOrgByRepoLfsObjects200ResponseObjectsInner.md)
- - [PostByOrgByRepoLfsObjects200ResponseObjectsInnerError](docs/PostByOrgByRepoLfsObjects200ResponseObjectsInnerError.md)
- - [PostByOrgByRepoLfsObjectsDownloadRequest](docs/PostByOrgByRepoLfsObjectsDownloadRequest.md)
- - [PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner](docs/PostByOrgByRepoLfsObjectsDownloadRequestObjectsInner.md)
- - [PostByOrgByRepoLfsObjectsRequest](docs/PostByOrgByRepoLfsObjectsRequest.md)
- - [PostByOrgByRepoLfsObjectsRequestObjectsInner](docs/PostByOrgByRepoLfsObjectsRequestObjectsInner.md)
  - [PostByOrgByRepoWebhooks201Response](docs/PostByOrgByRepoWebhooks201Response.md)
  - [PostByOrgByRepoWebhooksRequest](docs/PostByOrgByRepoWebhooksRequest.md)
  - [PostByOrgRepos201Response](docs/PostByOrgRepos201Response.md)
