@@ -2,8 +2,8 @@ use crate::low_level::apis::{repos_api, Error};
 use crate::models;
 
 use super::{
-    AnalyticsClient, BranchesClient, CommitsClient, ContentClient, DiffClient, LfsClient,
-    OrgClient, SyncClient, WebhooksClient,
+    AnalyticsClient, BranchesClient, CommitsClient, ContentClient, DiffClient, OrgClient,
+    SyncClient, WebhooksClient,
 };
 
 /// Client scoped to a specific repository (`/{org}/{repo}`).
@@ -87,12 +87,6 @@ impl RepoClient<'_> {
     #[must_use]
     pub fn webhooks(&self) -> WebhooksClient<'_> {
         WebhooksClient { repo: self }
-    }
-
-    /// Access LFS operations.
-    #[must_use]
-    pub fn lfs(&self) -> LfsClient<'_> {
-        LfsClient { repo: self }
     }
 
     /// Access analytics and AI attribution.
