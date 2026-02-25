@@ -1,6 +1,5 @@
 use mesa_dev::low_level::apis::configuration::Configuration;
 use mesa_dev::low_level::apis::{admin_api, repos_api};
-use mesa_dev::low_level::commits::{self, CommitAuthor, CommitFile, CommitResponse};
 use mesa_dev::models;
 use mesa_dev::MesaClient;
 use std::env;
@@ -48,10 +47,19 @@ pub fn unique_name(prefix: &str) -> String {
 }
 
 // ---------------------------------------------------------------------------
-// Commit helper — thin wrapper around `mesa_dev::low_level::commits::create_commit`
+// Commit helper — direct HTTP POST (the SDK no longer exposes commit creation)
 // ---------------------------------------------------------------------------
 
+/// Response from the commit endpoint (subset of fields we care about in tests).
+#[derive(Debug, serde::Deserialize)]
+pub struct CommitResponse {
+    pub sha: String,
+}
+
 /// Create a commit with upsert file operations (convenience for tests).
+///
+/// Issues a raw HTTP POST because the SDK intentionally does not expose
+/// commit creation.
 pub async fn create_commit(
     config: &Configuration,
     org: &str,
@@ -60,28 +68,43 @@ pub async fn create_commit(
     message: &str,
     files: &[(&str, &str)],
 ) -> CommitResponse {
-    let author = CommitAuthor::new("Test Author".to_string(), "test@test.com".to_string());
-    let commit_files: Vec<CommitFile> = files
+    let commit_files: Vec<serde_json::Value> = files
         .iter()
-        .map(|(path, content)| CommitFile::Upsert {
-            path: (*path).to_string(),
-            content: (*content).to_string(),
-            encoding: None,
+        .map(|(path, content)| {
+            serde_json::json!({
+                "action": "upsert",
+                "path": path,
+                "content": content,
+            })
         })
         .collect();
 
-    commits::create_commit(
-        config,
-        org,
-        repo,
-        branch,
-        message,
-        &author,
-        &commit_files,
-        None,
-    )
-    .await
-    .expect("create_commit failed")
+    let body = serde_json::json!({
+        "branch": branch,
+        "message": message,
+        "author": { "name": "Test Author", "email": "test@test.com" },
+        "files": commit_files,
+    });
+
+    let url = format!(
+        "{}/{org}/{repo}/commits",
+        config.base_path,
+        org = org,
+        repo = repo,
+    );
+
+    let mut req = config.client.request(reqwest::Method::POST, &url);
+    if let Some(ref ua) = config.user_agent {
+        req = req.header(reqwest::header::USER_AGENT, ua.clone());
+    }
+    if let Some(ref token) = config.bearer_access_token {
+        req = req.bearer_auth(token.to_owned());
+    }
+    req = req.json(&body);
+
+    let resp = req.send().await.expect("commit request failed");
+    assert!(resp.status().is_success(), "commit request returned {}", resp.status());
+    resp.json().await.expect("failed to parse commit response")
 }
 
 // ---------------------------------------------------------------------------
@@ -226,34 +249,6 @@ pub fn test_client() -> MesaClient {
     builder.build()
 }
 
-/// Convenience: create a commit through the high-level client.
-pub async fn hl_create_commit(
-    client: &MesaClient,
-    org: &str,
-    repo: &str,
-    branch: &str,
-    message: &str,
-    files: &[(&str, &str)],
-) -> CommitResponse {
-    let author = CommitAuthor::new("Test Author".to_string(), "test@test.com".to_string());
-    let commit_files: Vec<CommitFile> = files
-        .iter()
-        .map(|(path, content)| CommitFile::Upsert {
-            path: (*path).to_string(),
-            content: (*content).to_string(),
-            encoding: None,
-        })
-        .collect();
-
-    client
-        .org(org)
-        .repos()
-        .at(repo)
-        .commits()
-        .create(branch, message, &author, &commit_files, None)
-        .await
-        .expect("hl_create_commit failed")
-}
 
 // ---------------------------------------------------------------------------
 // High-level contexts
@@ -319,8 +314,9 @@ impl AsyncTestContext for HlRepoWithCommitContext {
             .await
             .expect("failed to create test repo");
 
-        let commit = hl_create_commit(
-            &client,
+        let config = test_config();
+        let commit = create_commit(
+            &config,
             &org,
             &repo_name,
             "main",

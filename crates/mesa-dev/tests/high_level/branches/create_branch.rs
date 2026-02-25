@@ -8,7 +8,7 @@ async fn test_hl_create_branch(ctx: &mut HlRepoWithCommitContext) {
     let branch_name = "test-branch";
     let req = models::PostByOrgByRepoBranchesRequest {
         name: Some(branch_name.to_string()),
-        from: Some(ctx.commit_sha.clone()),
+        from: ctx.commit_sha.clone(),
     };
 
     let resp = ctx
@@ -22,6 +22,6 @@ async fn test_hl_create_branch(ctx: &mut HlRepoWithCommitContext) {
         .unwrap();
 
     assert_eq!(resp.name, branch_name);
-    assert_eq!(resp.head_sha, ctx.commit_sha);
+    assert_eq!(resp.head_oid, ctx.commit_sha);
     assert!(!resp.is_default);
 }

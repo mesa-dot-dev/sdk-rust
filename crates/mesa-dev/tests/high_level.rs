@@ -36,8 +36,6 @@ mod hl_delete_branch;
 mod hl_list_branches;
 
 // Commits
-#[path = "high_level/commits/create_commit.rs"]
-mod hl_create_commit;
 #[path = "high_level/commits/get_commit.rs"]
 mod hl_get_commit;
 #[path = "high_level/commits/list_commits.rs"]

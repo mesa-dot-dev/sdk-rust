@@ -5,8 +5,9 @@ use test_context::test_context;
 #[tokio::test]
 async fn test_hl_get_diff(ctx: &mut HlRepoWithCommitContext) {
     // Create a second commit so we have two SHAs to diff.
-    let second = common::hl_create_commit(
-        &ctx.client,
+    let config = common::test_config();
+    let second = common::create_commit(
+        &config,
         &ctx.org,
         &ctx.repo_name,
         "main",

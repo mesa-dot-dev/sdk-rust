@@ -28,8 +28,6 @@ mod delete_branch;
 mod list_branches;
 
 // Commits
-#[path = "low_level/commits/create_commit.rs"]
-mod create_commit;
 #[path = "low_level/commits/get_commit.rs"]
 mod get_commit;
 #[path = "low_level/commits/list_commits.rs"]

@@ -12,7 +12,6 @@
 mod common;
 
 use futures::TryStreamExt;
-use mesa_dev::low_level::commits::{CommitAuthor, CommitFile};
 use mesa_dev::MesaClient;
 
 /// Smoke test: exercises the MesaClient -> OrgClient -> RepoClient chain.
@@ -37,18 +36,17 @@ async fn client_round_trip() {
 
     let repo = org.repos().at(&repo_name);
 
-    // Create a commit via the client
-    let author = CommitAuthor::new("Test".to_string(), "test@test.com".to_string());
-    let files = vec![CommitFile::Upsert {
-        path: "hello.txt".to_string(),
-        content: "world".to_string(),
-        encoding: None,
-    }];
-    let commit = repo
-        .commits()
-        .create("main", "test commit", &author, &files, None)
-        .await
-        .expect("create commit failed");
+    // Seed a commit so the repo has content to query
+    let config = common::test_config();
+    let commit = common::create_commit(
+        &config,
+        &org_name,
+        &repo_name,
+        "main",
+        "test commit",
+        &[("hello.txt", "world")],
+    )
+    .await;
     assert!(!commit.sha.is_empty());
 
     // List branches

@@ -1,5 +1,4 @@
 use crate::low_level::apis::{commits_api, Error};
-use crate::low_level::commits;
 use crate::models;
 
 use super::pagination::{paginate, PaginatedResponse};
@@ -91,34 +90,4 @@ impl<'a> CommitsClient<'a> {
         .await
     }
 
-    /// Create a commit with file operations.
-    ///
-    /// Uses the hand-written implementation to work around the missing
-    /// `Upsert` action variant in the generated code.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the API request fails.
-    #[allow(clippy::too_many_arguments)]
-    #[tracing::instrument(skip(self, author, files), fields(org = self.repo.org.org, repo = self.repo.repo), err(Debug))]
-    pub async fn create(
-        &self,
-        branch: &str,
-        message: &str,
-        author: &commits::CommitAuthor,
-        files: &[commits::CommitFile],
-        base_sha: Option<&str>,
-    ) -> Result<commits::CommitResponse, Error<commits::CreateCommitError>> {
-        commits::create_commit(
-            self.repo.org.config,
-            self.repo.org.org,
-            self.repo.repo,
-            branch,
-            message,
-            author,
-            files,
-            base_sha,
-        )
-        .await
-    }
 }

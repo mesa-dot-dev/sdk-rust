@@ -5,7 +5,6 @@
 //! provides hand-written replacements for endpoints where the `OpenAPI` code
 //! generator produces incorrect types.
 
-pub mod commits;
 pub mod content;
 
 /// OpenAPI-generated API client modules.
