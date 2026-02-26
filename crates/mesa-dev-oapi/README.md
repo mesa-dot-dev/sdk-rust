@@ -29,23 +29,17 @@ Class | Method | HTTP request | Description
 *AdminApi* | [**delete_by_org_api_keys_by_id**](docs/AdminApi.md#delete_by_org_api_keys_by_id) | **DELETE** /{org}/api-keys/{id} | Revoke API key
 *AdminApi* | [**get_by_org_api_keys**](docs/AdminApi.md#get_by_org_api_keys) | **GET** /{org}/api-keys | List API keys
 *AdminApi* | [**post_by_org_api_keys**](docs/AdminApi.md#post_by_org_api_keys) | **POST** /{org}/api-keys | Create API key
-*AgentBlameApi* | [**get_by_org_by_repo_agentblame**](docs/AgentBlameApi.md#get_by_org_by_repo_agentblame) | **GET** /{org}/{repo}/agentblame | Get AI attribution data
-*AgentBlameApi* | [**get_by_org_by_repo_analytics**](docs/AgentBlameApi.md#get_by_org_by_repo_analytics) | **GET** /{org}/{repo}/analytics | Get repository analytics
-*AgentBlameApi* | [**post_by_org_by_repo_analytics_refresh**](docs/AgentBlameApi.md#post_by_org_by_repo_analytics_refresh) | **POST** /{org}/{repo}/analytics/refresh | Refresh repository analytics
 *BranchesApi* | [**delete_by_org_by_repo_branches_by_branch**](docs/BranchesApi.md#delete_by_org_by_repo_branches_by_branch) | **DELETE** /{org}/{repo}/branches/{branch} | Delete branch
 *BranchesApi* | [**get_by_org_by_repo_branches**](docs/BranchesApi.md#get_by_org_by_repo_branches) | **GET** /{org}/{repo}/branches | List branches
 *BranchesApi* | [**post_by_org_by_repo_branches**](docs/BranchesApi.md#post_by_org_by_repo_branches) | **POST** /{org}/{repo}/branches | Create branch
 *CommitsApi* | [**get_by_org_by_repo_commits**](docs/CommitsApi.md#get_by_org_by_repo_commits) | **GET** /{org}/{repo}/commits | List commits
 *CommitsApi* | [**get_by_org_by_repo_commits_by_sha**](docs/CommitsApi.md#get_by_org_by_repo_commits_by_sha) | **GET** /{org}/{repo}/commits/{sha} | Get commit
 *ContentApi* | [**get_by_org_by_repo_content**](docs/ContentApi.md#get_by_org_by_repo_content) | **GET** /{org}/{repo}/content | Get content
-*DiffsApi* | [**get_by_org_by_repo_diff**](docs/DiffsApi.md#get_by_org_by_repo_diff) | **GET** /{org}/{repo}/diff | Get diff
 *OrgApi* | [**get_by_org**](docs/OrgApi.md#get_by_org) | **GET** /{org} | Get organization
 *ReposApi* | [**delete_by_org_by_repo**](docs/ReposApi.md#delete_by_org_by_repo) | **DELETE** /{org}/{repo} | Delete repository
 *ReposApi* | [**get_by_org_by_repo**](docs/ReposApi.md#get_by_org_by_repo) | **GET** /{org}/{repo} | Get repository
-*ReposApi* | [**get_by_org_by_repo_sync**](docs/ReposApi.md#get_by_org_by_repo_sync) | **GET** /{org}/{repo}/sync | Get sync status
 *ReposApi* | [**get_by_org_repos**](docs/ReposApi.md#get_by_org_repos) | **GET** /{org}/repos | List repositories
 *ReposApi* | [**patch_by_org_by_repo**](docs/ReposApi.md#patch_by_org_by_repo) | **PATCH** /{org}/{repo} | Update repository
-*ReposApi* | [**post_by_org_by_repo_sync**](docs/ReposApi.md#post_by_org_by_repo_sync) | **POST** /{org}/{repo}/sync | Sync repository
 *ReposApi* | [**post_by_org_repos**](docs/ReposApi.md#post_by_org_repos) | **POST** /{org}/repos | Create repository
 *WebhooksApi* | [**delete_by_org_by_repo_webhooks_by_webhook_id**](docs/WebhooksApi.md#delete_by_org_by_repo_webhooks_by_webhook_id) | **DELETE** /{org}/{repo}/webhooks/{webhookId} | Delete webhook
 *WebhooksApi* | [**get_by_org_by_repo_webhooks**](docs/WebhooksApi.md#get_by_org_by_repo_webhooks) | **GET** /{org}/{repo}/webhooks | List webhooks
@@ -60,16 +54,6 @@ Class | Method | HTTP request | Description
  - [GetByOrgApiKeys200ResponseApiKeysInner](docs/GetByOrgApiKeys200ResponseApiKeysInner.md)
  - [GetByOrgApiKeys400Response](docs/GetByOrgApiKeys400Response.md)
  - [GetByOrgApiKeys400ResponseError](docs/GetByOrgApiKeys400ResponseError.md)
- - [GetByOrgByRepo202Response](docs/GetByOrgByRepo202Response.md)
- - [GetByOrgByRepoAgentblame200Response](docs/GetByOrgByRepoAgentblame200Response.md)
- - [GetByOrgByRepoAgentblame200ResponseAttributionsValueInner](docs/GetByOrgByRepoAgentblame200ResponseAttributionsValueInner.md)
- - [GetByOrgByRepoAgentblame200ResponseStats](docs/GetByOrgByRepoAgentblame200ResponseStats.md)
- - [GetByOrgByRepoAnalytics200Response](docs/GetByOrgByRepoAnalytics200Response.md)
- - [GetByOrgByRepoAnalytics200ResponseAnalytics](docs/GetByOrgByRepoAnalytics200ResponseAnalytics.md)
- - [GetByOrgByRepoAnalytics200ResponseAnalyticsContributorsValue](docs/GetByOrgByRepoAnalytics200ResponseAnalyticsContributorsValue.md)
- - [GetByOrgByRepoAnalytics200ResponseAnalyticsHistoryInner](docs/GetByOrgByRepoAnalytics200ResponseAnalyticsHistoryInner.md)
- - [GetByOrgByRepoAnalytics200ResponseAnalyticsMeta](docs/GetByOrgByRepoAnalytics200ResponseAnalyticsMeta.md)
- - [GetByOrgByRepoAnalytics200ResponseAnalyticsSummary](docs/GetByOrgByRepoAnalytics200ResponseAnalyticsSummary.md)
  - [GetByOrgByRepoBranches200Response](docs/GetByOrgByRepoBranches200Response.md)
  - [GetByOrgByRepoBranches200ResponseBranchesInner](docs/GetByOrgByRepoBranches200ResponseBranchesInner.md)
  - [GetByOrgByRepoCommits200Response](docs/GetByOrgByRepoCommits200Response.md)
@@ -85,15 +69,6 @@ Class | Method | HTTP request | Description
  - [GetByOrgByRepoContent200ResponseAnyOf2EntriesInnerAnyOf](docs/GetByOrgByRepoContent200ResponseAnyOf2EntriesInnerAnyOf.md)
  - [GetByOrgByRepoContent200ResponseAnyOf2EntriesInnerAnyOf1](docs/GetByOrgByRepoContent200ResponseAnyOf2EntriesInnerAnyOf1.md)
  - [GetByOrgByRepoContent200ResponseAnyOf2EntriesInnerAnyOf2](docs/GetByOrgByRepoContent200ResponseAnyOf2EntriesInnerAnyOf2.md)
- - [GetByOrgByRepoDiff200Response](docs/GetByOrgByRepoDiff200Response.md)
- - [GetByOrgByRepoDiff200ResponseFilesInner](docs/GetByOrgByRepoDiff200ResponseFilesInner.md)
- - [GetByOrgByRepoDiff200ResponseFilteredFilesInner](docs/GetByOrgByRepoDiff200ResponseFilteredFilesInner.md)
- - [GetByOrgByRepoDiff200ResponseStats](docs/GetByOrgByRepoDiff200ResponseStats.md)
- - [GetByOrgByRepoSync200Response](docs/GetByOrgByRepoSync200Response.md)
- - [GetByOrgByRepoSync200ResponseStatus](docs/GetByOrgByRepoSync200ResponseStatus.md)
- - [GetByOrgByRepoSync200ResponseStatusOneOf](docs/GetByOrgByRepoSync200ResponseStatusOneOf.md)
- - [GetByOrgByRepoSync200ResponseStatusOneOf1](docs/GetByOrgByRepoSync200ResponseStatusOneOf1.md)
- - [GetByOrgByRepoSync200ResponseStatusOneOf2](docs/GetByOrgByRepoSync200ResponseStatusOneOf2.md)
  - [GetByOrgByRepoWebhooks200Response](docs/GetByOrgByRepoWebhooks200Response.md)
  - [GetByOrgByRepoWebhooks200ResponseWebhooksInner](docs/GetByOrgByRepoWebhooks200ResponseWebhooksInner.md)
  - [GetByOrgRepos200Response](docs/GetByOrgRepos200Response.md)
