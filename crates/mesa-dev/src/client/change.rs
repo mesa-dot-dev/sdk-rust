@@ -37,7 +37,8 @@ impl tonic::service::Interceptor for AuthInterceptor {
 /// let client = MesaClient::builder()
 ///     .build()?;
 ///
-/// let repo = client.org("my-org").repos().at("my-repo");
+/// let org = client.org("my-org");
+/// let repo = org.repos().at("my-repo");
 /// let change_client = repo.change().await?;
 ///
 /// // Create a change based on main branch
