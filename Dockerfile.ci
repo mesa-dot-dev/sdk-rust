@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk add --no-cache curl gcc musl-dev pkgconfig openssl-dev openssl-libs-static git jq
+RUN apk add --no-cache curl gcc musl-dev pkgconfig openssl-dev openssl-libs-static git jq protobuf-dev protoc
 ENV RUSTUP_HOME=/usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo
 ENV PATH="/usr/local/cargo/bin:${PATH}"
