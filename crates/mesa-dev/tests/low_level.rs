@@ -37,10 +37,6 @@ mod list_commits;
 #[path = "low_level/content/get_content.rs"]
 mod get_content;
 
-// Diffs
-#[path = "low_level/diffs/get_diff.rs"]
-mod get_diff;
-
 // Org
 #[path = "low_level/org/get_organization.rs"]
 mod get_organization;
@@ -52,9 +48,5 @@ mod create_repository;
 mod delete_repository;
 #[path = "low_level/repos/get_repository.rs"]
 mod get_repository;
-#[path = "low_level/repos/get_sync_status.rs"]
-mod get_sync_status;
 #[path = "low_level/repos/list_repositories.rs"]
 mod list_repositories;
-#[path = "low_level/repos/sync_repository.rs"]
-mod sync_repository;

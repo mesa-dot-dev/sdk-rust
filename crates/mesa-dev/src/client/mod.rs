@@ -15,32 +15,26 @@
 //! # }
 //! ```
 
-mod analytics;
 mod api_keys;
 mod branches;
 mod change;
 mod commits;
 mod content;
-mod diff;
 mod org;
 mod repo;
 mod repos;
-mod sync;
 mod webhooks;
 
 mod pagination;
 
-pub use analytics::AnalyticsClient;
 pub use api_keys::ApiKeysClient;
 pub use branches::BranchesClient;
 pub use change::ChangeClient;
 pub use commits::CommitsClient;
 pub use content::ContentClient;
-pub use diff::DiffClient;
 pub use org::OrgClient;
 pub use repo::RepoClient;
 pub use repos::ReposClient;
-pub use sync::SyncClient;
 pub use webhooks::WebhooksClient;
 
 use crate::low_level::apis::configuration::Configuration;

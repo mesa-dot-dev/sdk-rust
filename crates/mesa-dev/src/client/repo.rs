@@ -2,8 +2,7 @@ use crate::low_level::apis::{repos_api, Error};
 use crate::models;
 
 use super::{
-    AnalyticsClient, BranchesClient, ChangeClient, CommitsClient, ContentClient, DiffClient,
-    OrgClient, SyncClient, WebhooksClient,
+    BranchesClient, ChangeClient, CommitsClient, ContentClient, OrgClient, WebhooksClient,
 };
 
 /// Client scoped to a specific repository (`/{org}/{repo}`).
@@ -76,28 +75,10 @@ impl RepoClient<'_> {
         ContentClient { repo: self }
     }
 
-    /// Access diff operations.
-    #[must_use]
-    pub fn diff(&self) -> DiffClient<'_> {
-        DiffClient { repo: self }
-    }
-
-    /// Access sync operations.
-    #[must_use]
-    pub fn sync(&self) -> SyncClient<'_> {
-        SyncClient { repo: self }
-    }
-
     /// Access webhook operations.
     #[must_use]
     pub fn webhooks(&self) -> WebhooksClient<'_> {
         WebhooksClient { repo: self }
-    }
-
-    /// Access analytics and AI attribution.
-    #[must_use]
-    pub fn analytics(&self) -> AnalyticsClient<'_> {
-        AnalyticsClient { repo: self }
     }
 
     /// Access change-based file operations (create, modify, delete, move files).

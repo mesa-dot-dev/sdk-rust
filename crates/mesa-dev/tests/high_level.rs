@@ -45,14 +45,6 @@ mod hl_list_commits;
 #[path = "high_level/content/get_content.rs"]
 mod hl_get_content;
 
-// Diffs
-#[path = "high_level/diffs/get_diff.rs"]
-mod hl_get_diff;
-
-// Sync
-#[path = "high_level/sync/get_sync_status.rs"]
-mod hl_get_sync_status;
-
 // Webhooks
 #[path = "high_level/webhooks/create_webhook.rs"]
 mod hl_create_webhook;
@@ -68,12 +60,6 @@ mod hl_create_api_key;
 mod hl_list_api_keys;
 #[path = "high_level/admin/revoke_api_key.rs"]
 mod hl_revoke_api_key;
-
-// Analytics
-#[path = "high_level/analytics/get_analytics.rs"]
-mod hl_get_analytics;
-#[path = "high_level/analytics/refresh_analytics.rs"]
-mod hl_refresh_analytics;
 
 // Changes (gRPC)
 #[path = "high_level/changes/create_change.rs"]
