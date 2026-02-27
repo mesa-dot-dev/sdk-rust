@@ -1,0 +1,693 @@
+syntax = "proto3";
+
+package mesa.vcs;
+
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+// VCS data plane RPCs.
+//
+// Design goals:
+// - High-volume, typed APIs for VFS + agentic workloads.
+// - OIDs are bytes (not hex strings) for efficiency and cross-language interop.
+// - Watch APIs are cursor-based on monotonic bigint ids (ref_updates.id, evolog.id).
+
+// =============================================================================
+// Common
+// =============================================================================
+
+message Oid {
+  bytes value = 1 [(buf.validate.field).required = true, (buf.validate.field).bytes.min_len = 1];
+}
+
+message TreeOid {
+  bytes value = 1 [(buf.validate.field).required = true, (buf.validate.field).bytes.min_len = 1];
+}
+
+message CommitOid {
+  bytes value = 1 [(buf.validate.field).required = true, (buf.validate.field).bytes.min_len = 1];
+}
+
+message ChangeId {
+  bytes value = 1 [(buf.validate.field).required = true, (buf.validate.field).bytes.min_len = 1];
+}
+
+// ViewSpec selects the repository state to read from.
+//
+// - CommitView: immutable historical snapshot
+// - ChangeView: latest working-copy state for a change (base + applied oplog)
+message ViewSpec {
+  oneof view {
+    option (buf.validate.oneof).required = true;
+    CommitView commit = 1;
+    ChangeView change = 2;
+  }
+}
+
+message CommitView {
+  CommitOid commit_oid = 1 [(buf.validate.field).required = true];
+}
+
+message ChangeView {
+  ChangeId change_id = 1 [(buf.validate.field).required = true];
+}
+
+message Range {
+  // Inclusive offset into the blob.
+  uint64 offset = 1;
+  // Number of bytes to read. If 0, read to end.
+  uint64 length = 2;
+}
+
+// Object type as stored in objects.kind.
+enum ObjectKind {
+  OBJECT_KIND_UNSPECIFIED = 0;
+  OBJECT_KIND_BLOB = 1;
+  OBJECT_KIND_TREE = 2;
+  OBJECT_KIND_COMMIT = 3;
+  OBJECT_KIND_TAG = 4;
+}
+
+// Ref kind as stored in refs.kind.
+enum RefKind {
+  REF_KIND_UNSPECIFIED = 0;
+  REF_KIND_COMMIT = 1;
+  REF_KIND_TAG = 2;
+  REF_KIND_BLOB = 3;
+  REF_KIND_TREE = 4;
+  REF_KIND_OTHER = 5;
+}
+
+// Tree entry kind as stored in tree_entries.kind.
+// Note: mode still carries authoritative git semantics; kind is a convenience.
+enum TreeEntryKind {
+  TREE_ENTRY_KIND_UNSPECIFIED = 0;
+  TREE_ENTRY_KIND_BLOB = 1;
+  TREE_ENTRY_KIND_TREE = 2;
+  // Submodule / gitlink.
+  TREE_ENTRY_KIND_COMMIT = 3;
+  // Convenience for mode 120000; may still be backed by a blob.
+  TREE_ENTRY_KIND_SYMLINK = 4;
+}
+
+message Page {
+  // Maximum number of items to return. 0 means server default.
+  uint32 page_size = 1;
+  // Opaque token returned by the server.
+  bytes page_token = 2;
+}
+
+// =============================================================================
+// Services
+// =============================================================================
+
+// ControlService is the mutation surface.
+//
+// In this iteration, all read-only operations (including watch streams) live in DataService.
+service ControlService {
+  // Mutations only. Keep reads in DataService.
+  rpc CreateChange(CreateChangeRequest) returns (CreateChangeResponse);
+
+  // Append ops to a change working-copy oplog.
+  // Strict sequencing: the first request in the stream must provide expected_last_op_id.
+  rpc ApplyOps(stream ApplyOpsRequest) returns (ApplyOpsResponse);
+
+  // Materialize a commit from the latest working-copy state and append to evolog.
+  rpc SnapshotChange(SnapshotChangeRequest) returns (SnapshotChangeResponse);
+
+  // Rebase-like operation. Initial policy: server may reject if oplog is non-empty.
+  rpc SetChangeBase(SetChangeBaseRequest) returns (SetChangeBaseResponse);
+
+  // Bookmark mutations (JJ-native names, mapped to Git refs by the server).
+  rpc CreateBookmark(CreateBookmarkRequest) returns (CreateBookmarkResponse);
+  rpc MoveBookmark(MoveBookmarkRequest) returns (MoveBookmarkResponse);
+  rpc DeleteBookmark(DeleteBookmarkRequest) returns (DeleteBookmarkResponse);
+}
+
+// DataService is the "data plane" for structured VCS reads.
+service DataService {
+  // Returns server limits for ApplyOps payload shaping.
+  rpc GetApplyOpsPolicy(GetApplyOpsPolicyRequest) returns (GetApplyOpsPolicyResponse);
+
+  // Refs (read-only)
+  rpc ResolveRef(ResolveRefRequest) returns (ResolveRefResponse);
+  rpc ListRefs(ListRefsRequest) returns (ListRefsResponse);
+  rpc WatchRefUpdates(WatchRefUpdatesRequest) returns (stream RefUpdateEvent);
+
+  // JJ change metadata (read-only)
+  rpc GetChange(GetChangeRequest) returns (GetChangeResponse);
+  rpc GetChangeHistory(GetChangeHistoryRequest) returns (GetChangeHistoryResponse);
+  rpc WatchEvoLog(WatchEvoLogRequest) returns (stream EvoLogEvent);
+
+  // Working-copy invalidation stream for VFS/SDK consumers.
+  // Streams op-derived invalidations for a change with a resumable cursor.
+  rpc WatchChangeOps(WatchChangeOpsRequest) returns (stream OpEvent);
+
+  // Object/commit/tree primitives
+  rpc GetObjectMeta(GetObjectMetaRequest) returns (GetObjectMetaResponse);
+  rpc HasObjects(HasObjectsRequest) returns (HasObjectsResponse);
+
+  rpc GetCommit(GetCommitRequest) returns (GetCommitResponse);
+  rpc BatchGetCommits(BatchGetCommitsRequest) returns (BatchGetCommitsResponse);
+
+  // Walk commit ancestors starting from a given commit OID.
+  rpc ListCommits(ListCommitsRequest) returns (ListCommitsResponse);
+
+  // List a tree by tree OID.
+  rpc ListTree(ListTreeRequest) returns (ListTreeResponse);
+
+  // Point lookups within a tree by name.
+  rpc BatchGetTreeEntries(BatchGetTreeEntriesRequest) returns (BatchGetTreeEntriesResponse);
+
+  // View-based directory listing (commit or change).
+  rpc ListDir(ListDirRequest) returns (ListDirResponse);
+
+  // Resolve one path in a view (server-side traversal).
+  rpc ResolvePath(ResolvePathRequest) returns (ResolvePathResponse);
+
+  // Resolve many paths in one view in one RPC.
+  rpc BatchStat(BatchStatRequest) returns (BatchStatResponse);
+}
+
+// BlobTransferService handles large blob IO.
+//
+// Note: if you later move blobs to signed URLs, keep these RPCs as the auth+metadata layer.
+service BlobTransferService {
+  rpc GetBlobMeta(GetBlobMetaRequest) returns (GetBlobMetaResponse);
+  rpc GetBlob(GetBlobRequest) returns (stream BlobChunk);
+}
+
+// =============================================================================
+// ControlService messages
+// =============================================================================
+
+message ResolveRefRequest {
+  string repo_id = 1;
+  string ref_name = 2; // e.g. "refs/heads/main"
+}
+
+message GetApplyOpsPolicyRequest {
+  string repo_id = 1;
+}
+
+message GetApplyOpsPolicyResponse {
+  // If false, clients must always upload blobs first and reference blob_oid.
+  bool inline_data_enabled = 1;
+  // Maximum bytes allowed for OpCreateFile.inline_data / OpModifyFile.inline_data.
+  uint64 max_inline_data_bytes = 2;
+  // Maximum op count accepted in a single ApplyOps request message.
+  uint32 max_ops_per_message = 3;
+  // Maximum request-message count accepted in a single ApplyOps stream.
+  uint32 max_messages_per_stream = 4;
+  // Maximum total op count accepted across an entire ApplyOps stream.
+  uint32 max_total_ops_per_stream = 5;
+  // Maximum total inline payload bytes across an entire ApplyOps stream.
+  // Includes OpCreateFile.inline_data, OpModifyFile.inline_data, and
+  // UTF-8 bytes for OpSetSymlink.target.
+  uint64 max_total_inline_data_bytes = 6;
+}
+
+message ResolveRefResponse {
+  RefInfo ref = 1 [(buf.validate.field).required = true];
+}
+
+message ListRefsRequest {
+  string repo_id = 1;
+  // Optional prefix filter, e.g. "refs/heads/".
+  string prefix = 2;
+  Page page = 3;
+}
+
+message ListRefsResponse {
+  repeated RefInfo refs = 1;
+  bytes next_page_token = 2;
+}
+
+message RefInfo {
+  string ref_name = 1;
+  Oid target_oid = 2 [(buf.validate.field).required = true];
+  RefKind kind = 3;
+  uint64 update_seq = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message WatchRefUpdatesRequest {
+  string repo_id = 1;
+  // Resume cursor: stream updates with id > after_id.
+  uint64 after_id = 2;
+  // Optional server hint for polling. 0 means server default.
+  uint32 poll_interval_ms = 3;
+}
+
+message RefUpdateEvent {
+  uint64 id = 1;
+  string ref_name = 2;
+  Oid old_oid = 3 [(buf.validate.field).required = true];
+  Oid new_oid = 4 [(buf.validate.field).required = true];
+  google.protobuf.Timestamp updated_at = 5;
+  string reason = 6;
+}
+
+message CreateChangeRequest {
+  string repo_id = 1;
+  oneof base {
+    string base_ref_name = 2;
+    CommitOid base_commit = 3;
+  }
+}
+
+message CreateChangeResponse {
+  Change change = 1 [(buf.validate.field).required = true];
+}
+
+message ApplyOpsRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+
+  // Strict per-change sequencing:
+  // - Required on the first streamed request.
+  // - Must match the server's latest applied op id for this change.
+  optional uint64 expected_last_op_id = 3;
+
+  // Optional idempotency key for safe retries.
+  string idempotency_key = 5;
+
+  // Invariants for file-content ops in this request:
+  // - Exactly one content source must be set (blob_oid or inline_data).
+  // - If blob_oid is used, blob must already exist, otherwise the batch fails atomically.
+  // - If inline_data is used, server enforces a max inline size and stores it in blob storage first.
+  //   Clients can query current limits via DataService.GetApplyOpsPolicy.
+  // - Oplog rows always persist content as blob references, never raw file bytes.
+
+  repeated Op ops = 4;
+}
+
+message ApplyOpsResponse {
+  ChangeId change_id = 1 [(buf.validate.field).required = true];
+  uint64 previous_last_op_id = 2;
+  uint64 last_op_id = 3;
+  uint32 applied_ops_count = 4;
+}
+
+message SnapshotChangeRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+
+  // If set, snapshot must include ops through exactly this id.
+  // Useful for deterministic client behavior under concurrent writes.
+  optional uint64 expected_last_op_id = 3;
+
+  // Optional user-facing message for the materialized commit.
+  string message = 4;
+
+  // Optional idempotency key to make retries safe.
+  string idempotency_key = 5;
+}
+
+message SnapshotChangeResponse {
+  ChangeId change_id = 1 [(buf.validate.field).required = true];
+  CommitOid commit_oid = 2 [(buf.validate.field).required = true];
+  uint64 evolog_id = 3;
+  uint64 compacted_through_op_id = 4;
+}
+
+message SetChangeBaseRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+
+  oneof new_base {
+    string base_ref_name = 3;
+    CommitOid base_commit = 4;
+  }
+}
+
+message SetChangeBaseResponse {
+  Change change = 1 [(buf.validate.field).required = true];
+}
+
+message CreateBookmarkRequest {
+  string repo_id = 1;
+  // JJ bookmark name, e.g. "main".
+  // Server maps this to a Git-compatible ref (refs/heads/<bookmark_name>) internally.
+  string bookmark_name = 2;
+  CommitOid commit_oid = 3 [(buf.validate.field).required = true];
+}
+
+message CreateBookmarkResponse {
+  BookmarkInfo bookmark = 1 [(buf.validate.field).required = true];
+}
+
+message MoveBookmarkRequest {
+  string repo_id = 1;
+  string bookmark_name = 2;
+
+  // Optimistic concurrency token from prior bookmark responses.
+  uint64 expected_update_seq = 3;
+
+  CommitOid new_commit_oid = 4 [(buf.validate.field).required = true];
+}
+
+message MoveBookmarkResponse {
+  BookmarkInfo bookmark = 1 [(buf.validate.field).required = true];
+}
+
+message DeleteBookmarkRequest {
+  string repo_id = 1;
+  string bookmark_name = 2;
+
+  // Optimistic concurrency token from prior bookmark responses.
+  uint64 expected_update_seq = 3;
+}
+
+message DeleteBookmarkResponse {
+  string bookmark_name = 1;
+  uint64 deleted_update_seq = 2;
+}
+
+message BookmarkInfo {
+  // JJ bookmark name (without refs/heads/ prefix).
+  string bookmark_name = 1;
+  CommitOid commit_oid = 2 [(buf.validate.field).required = true];
+  uint64 update_seq = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message GetChangeRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+}
+
+message GetChangeResponse {
+  Change change = 1 [(buf.validate.field).required = true];
+}
+
+message GetChangeHistoryRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+  Page page = 3;
+}
+
+message GetChangeHistoryResponse {
+  repeated EvoLogEvent entries = 1;
+  bytes next_page_token = 2;
+}
+
+message WatchChangeOpsRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+  // Resume cursor: stream op events with op_id > after_op_id.
+  uint64 after_op_id = 3;
+  // Optional server hint for polling. 0 means server default.
+  uint32 poll_interval_ms = 4;
+}
+
+message OpEvent {
+  ChangeId change_id = 1 [(buf.validate.field).required = true];
+  uint64 op_id = 2;
+  // Direct paths invalidated by this op.
+  repeated string invalidated_paths = 3;
+  // Prefixes invalidated by this op (useful for directory cache busting).
+  repeated string invalidated_prefixes = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message WatchEvoLogRequest {
+  string repo_id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+  // Resume cursor: stream evolog entries with id > after_id.
+  uint64 after_id = 3;
+  uint32 poll_interval_ms = 4;
+}
+
+message EvoLogEvent {
+  uint64 id = 1;
+  ChangeId change_id = 2 [(buf.validate.field).required = true];
+  CommitOid commit_oid = 3 [(buf.validate.field).required = true];
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message Change {
+  ChangeId id = 1 [(buf.validate.field).required = true];
+  CommitOid current_commit_oid = 2 [(buf.validate.field).required = true];
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message Op {
+  oneof op {
+    OpCreateFile create_file = 1;
+    OpDeletePath delete_path = 2;
+    OpMovePath move_path = 3;
+    OpSetMode set_mode = 4;
+    OpSetSymlink set_symlink = 5;
+    OpModifyFile modify_file = 6;
+  }
+}
+
+message OpCreateFile {
+  string path = 1;
+  oneof content {
+    // Preferred for large files: upload first through BlobTransferService (or presigned URL flow).
+    Oid blob_oid = 2;
+    // Convenience for small files only; server applies a strict max size limit.
+    bytes inline_data = 4;
+  }
+  // Git-like mode for files, usually 100644 or 100755.
+  uint32 mode = 3;
+}
+
+message OpModifyFile {
+  string path = 1;
+  oneof content {
+    // Preferred for large files: upload first through BlobTransferService (or presigned URL flow).
+    Oid blob_oid = 2;
+    // Convenience for small files only; server applies a strict max size limit.
+    bytes inline_data = 3;
+  }
+}
+
+message OpDeletePath {
+  string path = 1;
+  bool recursive = 2;
+}
+
+message OpMovePath {
+  string from_path = 1;
+  string to_path = 2;
+}
+
+message OpSetMode {
+  string path = 1;
+  uint32 mode = 2;
+}
+
+message OpSetSymlink {
+  string path = 1;
+  string target = 2;
+}
+
+// =============================================================================
+// DataService messages
+// =============================================================================
+
+message GetObjectMetaRequest {
+  string repo_id = 1;
+  Oid oid = 2 [(buf.validate.field).required = true];
+}
+
+message GetObjectMetaResponse {
+  // True if this oid exists in objects.
+  bool exists = 1;
+  // True if this oid is associated with the repo via repo_objects.
+  bool present_in_repo = 2;
+  ObjectKind kind = 3;
+  uint64 size_bytes = 4;
+}
+
+message HasObjectsRequest {
+  string repo_id = 1;
+  // Input order is preserved in the output bitmaps.
+  repeated Oid oids = 2;
+}
+
+message HasObjectsResponse {
+  // True if the oid exists in objects.
+  repeated bool exists = 1;
+  // True if the oid is associated with the repo via repo_objects.
+  repeated bool present_in_repo = 2;
+}
+
+message GetCommitRequest {
+  string repo_id = 1;
+  CommitOid commit_oid = 2 [(buf.validate.field).required = true];
+}
+
+message GetCommitResponse {
+  Commit commit = 1 [(buf.validate.field).required = true];
+}
+
+message BatchGetCommitsRequest {
+  string repo_id = 1;
+  repeated CommitOid commit_oids = 2;
+}
+
+message BatchGetCommitsResponse {
+  repeated BatchGetCommitResult results = 1;
+}
+
+message BatchGetCommitResult {
+  CommitOid commit_oid = 1 [(buf.validate.field).required = true];
+  oneof result {
+    Commit commit = 2;
+    NotFound not_found = 3;
+  }
+}
+
+message ListCommitsRequest {
+  string repo_id = 1;
+  CommitOid start_oid = 2 [(buf.validate.field).required = true];
+  Page page = 3;
+}
+
+message ListCommitsResponse {
+  repeated Commit commits = 1;
+  bytes next_page_token = 2;
+}
+
+message Commit {
+  CommitOid oid = 1 [(buf.validate.field).required = true];
+  TreeOid tree_oid = 2 [(buf.validate.field).required = true];
+  repeated CommitOid parent_oids = 3;
+
+  string author_name = 4;
+  string author_email = 5;
+  google.protobuf.Timestamp author_time = 6;
+
+  string committer_name = 7;
+  string committer_email = 8;
+  google.protobuf.Timestamp committer_time = 9;
+
+  string message = 10;
+}
+
+message ListTreeRequest {
+  string repo_id = 1;
+  TreeOid tree_oid = 2 [(buf.validate.field).required = true];
+  bool include_symlink_target = 3;
+  Page page = 4;
+}
+
+message ListTreeResponse {
+  repeated TreeEntry entries = 1;
+  bytes next_page_token = 2;
+}
+
+message BatchGetTreeEntriesRequest {
+  string repo_id = 1;
+  TreeOid tree_oid = 2 [(buf.validate.field).required = true];
+  // Names within the tree (single path segment).
+  repeated string names = 3;
+  bool include_symlink_target = 4;
+}
+
+message BatchGetTreeEntriesResponse {
+  repeated BatchGetTreeEntryResult results = 1;
+}
+
+message BatchGetTreeEntryResult {
+  string name = 1;
+  oneof result {
+    TreeEntry entry = 2;
+    NotFound not_found = 3;
+  }
+}
+
+message ListDirRequest {
+  string repo_id = 1;
+  ViewSpec view = 2 [(buf.validate.field).required = true];
+  // Directory path relative to repo root. "" means root.
+  string dir = 3;
+  bool include_symlink_target = 4;
+  Page page = 5;
+}
+
+message ListDirResponse {
+  repeated TreeEntry entries = 1;
+  bytes next_page_token = 2;
+}
+
+message TreeEntry {
+  // Name within the tree (single path segment).
+  string name = 1;
+  // Git-like mode stored as an integer (e.g. 100644, 100755, 120000, 040000, 160000).
+  uint32 mode = 2;
+  TreeEntryKind kind = 3;
+  Oid target_oid = 4 [(buf.validate.field).required = true];
+  uint64 size_bytes = 5;
+  // Optional convenience for symlinks.
+  string symlink_target = 6;
+}
+
+message ResolvePathRequest {
+  string repo_id = 1;
+  ViewSpec view = 2 [(buf.validate.field).required = true];
+  // Path relative to repo root.
+  string path = 3;
+  bool include_symlink_target = 4;
+}
+
+message ResolvePathResponse {
+  // The resolved entry for the given path.
+  TreeEntry entry = 1 [(buf.validate.field).required = true];
+  // If the entry is a directory and the backing tree is materialized, this is the child tree oid.
+  TreeOid tree_oid = 2;
+}
+
+message BatchStatRequest {
+  string repo_id = 1;
+  ViewSpec view = 2 [(buf.validate.field).required = true];
+  repeated string paths = 3;
+  bool include_symlink_target = 4;
+}
+
+message BatchStatResponse {
+  repeated BatchStatResult results = 1;
+}
+
+message BatchStatResult {
+  string path = 1;
+  oneof result {
+    TreeEntry entry = 2;
+    NotFound not_found = 3;
+  }
+}
+
+message NotFound {
+  string message = 1;
+}
+
+// =============================================================================
+// BlobTransferService messages
+// =============================================================================
+
+message GetBlobMetaRequest {
+  string repo_id = 1;
+  Oid oid = 2 [(buf.validate.field).required = true];
+}
+
+message GetBlobMetaResponse {
+  bool exists = 1;
+  bool present_in_repo = 2;
+  uint64 size_bytes = 3;
+}
+
+message GetBlobRequest {
+  string repo_id = 1;
+  Oid oid = 2 [(buf.validate.field).required = true];
+  Range range = 3;
+}
+
+message BlobChunk {
+  bytes data = 1;
+  bool eof = 2;
+}

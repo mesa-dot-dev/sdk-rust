@@ -14,7 +14,8 @@
 //! use futures::TryStreamExt;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-//! let client = MesaClient::builder().build();
+//! let client = MesaClient::builder()
+//!     .build()?;
 //!
 //! // List repositories
 //! let repos: Vec<_> = client.org("my-org").repos().list(None).try_collect().await?;
@@ -31,9 +32,10 @@
 //! ```
 
 pub mod client;
+pub mod grpc;
 pub mod low_level;
 
-pub use client::MesaClient;
+pub use client::{BuildError, MesaClient, DEFAULT_GRPC_ENDPOINT};
 
 /// Re-export of [`futures_core::Stream`] for consuming paginated results.
 pub use futures_core::Stream;

@@ -7,40 +7,67 @@
 //! use futures::TryStreamExt;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-//! let client = MesaClient::builder().build();
+//! let client = MesaClient::builder()
+//!     .build()?;
 //! let repos: Vec<_> = client.org("my-org").repos().list(None).try_collect().await?;
 //! let branches: Vec<_> = client.org("my-org").repos().at("my-repo").branches().list(None).try_collect().await?;
 //! # Ok(())
 //! # }
 //! ```
 
-mod analytics;
 mod api_keys;
 mod branches;
+mod change;
 mod commits;
 mod content;
-mod diff;
 mod org;
 mod repo;
 mod repos;
-mod sync;
 mod webhooks;
 
 mod pagination;
 
-pub use analytics::AnalyticsClient;
 pub use api_keys::ApiKeysClient;
 pub use branches::BranchesClient;
+pub use change::ChangeClient;
 pub use commits::CommitsClient;
 pub use content::ContentClient;
-pub use diff::DiffClient;
 pub use org::OrgClient;
 pub use repo::RepoClient;
 pub use repos::ReposClient;
-pub use sync::SyncClient;
 pub use webhooks::WebhooksClient;
 
 use crate::low_level::apis::configuration::Configuration;
+
+/// Default gRPC endpoint for the Mesa VCS data plane.
+pub const DEFAULT_GRPC_ENDPOINT: &str = "https://vcs.depot.mesa.dev";
+
+/// Error returned when building a [`MesaClient`] fails.
+#[derive(Debug)]
+pub enum BuildError {
+    /// The gRPC endpoint URL is invalid.
+    InvalidGrpcEndpoint(tonic::codegen::http::uri::InvalidUri),
+    /// TLS configuration for the gRPC endpoint failed.
+    TlsConfig(tonic::transport::Error),
+}
+
+impl std::fmt::Display for BuildError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InvalidGrpcEndpoint(e) => write!(f, "invalid gRPC endpoint: {e}"),
+            Self::TlsConfig(e) => write!(f, "gRPC TLS configuration failed: {e}"),
+        }
+    }
+}
+
+impl std::error::Error for BuildError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::InvalidGrpcEndpoint(e) => Some(e),
+            Self::TlsConfig(e) => Some(e),
+        }
+    }
+}
 
 /// Builder for configuring and constructing a [`MesaClient`].
 #[derive(Clone, Debug, Default)]
@@ -49,6 +76,7 @@ pub struct MesaClientBuilder {
     user_agent: Option<String>,
     client: Option<reqwest_middleware::ClientWithMiddleware>,
     api_key: Option<String>,
+    grpc_endpoint: Option<String>,
 }
 
 impl MesaClientBuilder {
@@ -80,9 +108,21 @@ impl MesaClientBuilder {
         self
     }
 
-    /// Finalize the builder and construct a [`MesaClient`].
+    /// Override the gRPC endpoint URL.
+    ///
+    /// Defaults to [`DEFAULT_GRPC_ENDPOINT`].
     #[must_use]
-    pub fn build(self) -> MesaClient {
+    pub fn with_grpc_endpoint(mut self, endpoint: impl Into<String>) -> Self {
+        self.grpc_endpoint = Some(endpoint.into());
+        self
+    }
+
+    /// Finalize the builder and construct a [`MesaClient`].
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BuildError`] if the gRPC endpoint URL is invalid.
+    pub fn build(self) -> Result<MesaClient, BuildError> {
         let mut config = Configuration::default();
 
         if let Some(base_path) = self.base_path {
@@ -98,7 +138,34 @@ impl MesaClientBuilder {
             config.bearer_access_token = Some(api_key);
         }
 
-        MesaClient { config }
+        let endpoint_str = self
+            .grpc_endpoint
+            .unwrap_or_else(|| DEFAULT_GRPC_ENDPOINT.to_owned());
+        let mut endpoint = tonic::transport::Channel::from_shared(endpoint_str)
+            .map_err(BuildError::InvalidGrpcEndpoint)?
+            .http2_adaptive_window(true);
+
+        // Enable TLS when the endpoint uses HTTPS.
+        if endpoint
+            .uri()
+            .scheme_str()
+            .is_some_and(|s| s.eq_ignore_ascii_case("https"))
+        {
+            endpoint = endpoint
+                .tls_config(
+                    tonic::transport::ClientTlsConfig::new()
+                        .with_native_roots()
+                        .with_enabled_roots(),
+                )
+                .map_err(BuildError::TlsConfig)?;
+        }
+
+        let grpc_channel = endpoint.connect_lazy();
+
+        Ok(MesaClient {
+            config,
+            grpc_channel,
+        })
     }
 
     fn default_user_agent() -> String {
@@ -116,7 +183,8 @@ impl MesaClientBuilder {
 /// and navigate to sub-resources with [`MesaClient::org`].
 #[derive(Clone, Debug)]
 pub struct MesaClient {
-    config: Configuration,
+    pub(crate) config: Configuration,
+    pub(crate) grpc_channel: tonic::transport::Channel,
 }
 
 impl MesaClient {
@@ -126,17 +194,23 @@ impl MesaClient {
         MesaClientBuilder::default()
     }
 
-    /// Create a new client from an existing [`Configuration`].
+    /// Create a new client from an existing [`Configuration`] and gRPC channel.
     #[must_use]
-    pub fn from_configuration(config: Configuration) -> Self {
-        Self { config }
+    pub fn from_configuration(
+        config: Configuration,
+        grpc_channel: tonic::transport::Channel,
+    ) -> Self {
+        Self {
+            config,
+            grpc_channel,
+        }
     }
 
     /// Navigate to an organization.
     #[must_use]
     pub fn org<'a>(&'a self, name: &'a str) -> OrgClient<'a> {
         OrgClient {
-            config: &self.config,
+            client: self,
             org: name,
         }
     }

@@ -2,8 +2,7 @@ use crate::low_level::apis::{repos_api, Error};
 use crate::models;
 
 use super::{
-    AnalyticsClient, BranchesClient, CommitsClient, ContentClient, DiffClient, OrgClient,
-    SyncClient, WebhooksClient,
+    BranchesClient, ChangeClient, CommitsClient, ContentClient, OrgClient, WebhooksClient,
 };
 
 /// Client scoped to a specific repository (`/{org}/{repo}`).
@@ -23,7 +22,7 @@ impl RepoClient<'_> {
     pub async fn get(
         &self,
     ) -> Result<models::PostByOrgRepos201Response, Error<repos_api::GetByOrgByRepoError>> {
-        repos_api::get_by_org_by_repo(self.org.config, self.org.org, Some(self.repo)).await
+        repos_api::get_by_org_by_repo(&self.org.client.config, self.org.org, Some(self.repo)).await
     }
 
     /// Permanently delete this repository and all its data.
@@ -36,7 +35,7 @@ impl RepoClient<'_> {
         &self,
     ) -> Result<models::DeleteByOrgApiKeysById200Response, Error<repos_api::DeleteByOrgByRepoError>>
     {
-        repos_api::delete_by_org_by_repo(self.org.config, self.org.org, self.repo).await
+        repos_api::delete_by_org_by_repo(&self.org.client.config, self.org.org, self.repo).await
     }
 
     /// Update repository name or upstream configuration.
@@ -49,8 +48,13 @@ impl RepoClient<'_> {
         &self,
         request: models::PatchByOrgByRepoRequest,
     ) -> Result<models::PostByOrgRepos201Response, Error<repos_api::PatchByOrgByRepoError>> {
-        repos_api::patch_by_org_by_repo(self.org.config, self.org.org, self.repo, Some(request))
-            .await
+        repos_api::patch_by_org_by_repo(
+            &self.org.client.config,
+            self.org.org,
+            self.repo,
+            Some(request),
+        )
+        .await
     }
 
     /// Access branch operations.
@@ -71,27 +75,28 @@ impl RepoClient<'_> {
         ContentClient { repo: self }
     }
 
-    /// Access diff operations.
-    #[must_use]
-    pub fn diff(&self) -> DiffClient<'_> {
-        DiffClient { repo: self }
-    }
-
-    /// Access sync operations.
-    #[must_use]
-    pub fn sync(&self) -> SyncClient<'_> {
-        SyncClient { repo: self }
-    }
-
     /// Access webhook operations.
     #[must_use]
     pub fn webhooks(&self) -> WebhooksClient<'_> {
         WebhooksClient { repo: self }
     }
 
-    /// Access analytics and AI attribution.
-    #[must_use]
-    pub fn analytics(&self) -> AnalyticsClient<'_> {
-        AnalyticsClient { repo: self }
+    /// Access change-based file operations (create, modify, delete, move files).
+    ///
+    /// Fetches the repository UUID via the REST API, which is required by the
+    /// gRPC data plane.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the repository metadata cannot be fetched.
+    pub async fn change(
+        &self,
+    ) -> Result<ChangeClient, Error<repos_api::GetByOrgByRepoError>> {
+        let repo_meta = self.get().await?;
+        Ok(ChangeClient::new(
+            &self.org.client.grpc_channel,
+            self.org.client.config.bearer_access_token.as_deref(),
+            repo_meta.id,
+        ))
     }
 }

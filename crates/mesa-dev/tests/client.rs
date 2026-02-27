@@ -13,6 +13,7 @@ mod common;
 
 use futures::TryStreamExt;
 use mesa_dev::MesaClient;
+use std::env;
 
 /// Smoke test: exercises the MesaClient -> OrgClient -> RepoClient chain.
 #[tokio::test]
@@ -25,7 +26,12 @@ async fn client_round_trip() {
     let commit_sha = common::create_seeded_repo(&config, &org_name, &repo_name).await;
     assert!(!commit_sha.is_empty());
 
-    let client = MesaClient::from_configuration(config);
+    let grpc_endpoint = env::var("MESA_TEST_GRPC_ENDPOINT")
+        .unwrap_or_else(|_| mesa_dev::DEFAULT_GRPC_ENDPOINT.to_string());
+    let grpc_channel = tonic::transport::Channel::from_shared(grpc_endpoint)
+        .expect("invalid gRPC endpoint")
+        .connect_lazy();
+    let client = MesaClient::from_configuration(config, grpc_channel);
     let org = client.org(&org_name);
     let repo = org.repos().at(&repo_name);
 

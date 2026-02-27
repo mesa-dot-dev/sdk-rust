@@ -49,7 +49,7 @@ impl<'a> BranchesClient<'a> {
             limit,
             "listing branches"
         );
-        let config = self.repo.org.config;
+        let config = &self.repo.org.client.config;
         let org = self.repo.org.org;
         let repo = self.repo.repo;
 
@@ -73,7 +73,7 @@ impl<'a> BranchesClient<'a> {
         Error<branches_api::PostByOrgByRepoBranchesError>,
     > {
         branches_api::post_by_org_by_repo_branches(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             Some(request),
@@ -95,7 +95,7 @@ impl<'a> BranchesClient<'a> {
         Error<branches_api::DeleteByOrgByRepoBranchesByBranchError>,
     > {
         branches_api::delete_by_org_by_repo_branches_by_branch(
-            self.repo.org.config,
+            &self.repo.org.client.config,
             self.repo.org.org,
             self.repo.repo,
             Some(branch),

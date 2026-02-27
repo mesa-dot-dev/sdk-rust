@@ -17,7 +17,7 @@ pub mod content;
 /// configure authentication and the base URL.
 pub mod apis {
     pub use mesa_dev_oapi::apis::{
-        admin_api, agent_blame_api, branches_api, commits_api, configuration, diffs_api, org_api,
-        repos_api, webhooks_api, Error, ResponseContent,
+        admin_api, branches_api, commits_api, configuration, org_api, repos_api, webhooks_api,
+        Error, ResponseContent,
     };
 }

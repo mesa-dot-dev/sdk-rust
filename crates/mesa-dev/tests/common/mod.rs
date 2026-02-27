@@ -70,7 +70,9 @@ pub async fn create_seeded_repo(config: &Configuration, org: &str, name: &str) -
         .bearer_access_token
         .as_deref()
         .expect("missing API key");
-    let remote_url = format!("https://{api_key}@depot.mesa.dev/{org}/{name}.git");
+    let git_host =
+        env::var("MESA_TEST_GIT_HOST").unwrap_or_else(|_| "depot.mesa.dev".to_string());
+    let remote_url = format!("https://{api_key}@{git_host}/{org}/{name}.git");
 
     let tmp = tempfile::tempdir().expect("failed to create tempdir");
     let tmp_path = tmp.path();
@@ -219,10 +221,13 @@ pub fn test_client() -> MesaClient {
     let base_url = env::var("MESA_TEST_BASE_URL")
         .unwrap_or_else(|_| "https://depot.mesa.dev/api/v1".to_string());
     let api_key = env::var("MESA_TEST_API_KEY").expect("MESA_TEST_API_KEY must be set");
+    let grpc_endpoint = env::var("MESA_TEST_GRPC_ENDPOINT")
+        .unwrap_or_else(|_| mesa_dev::DEFAULT_GRPC_ENDPOINT.to_string());
 
     let mut builder = MesaClient::builder()
         .with_base_path(base_url)
-        .with_api_key(api_key);
+        .with_api_key(api_key)
+        .with_grpc_endpoint(grpc_endpoint);
 
     if let Ok(proxy_url) = env::var("MESA_TEST_PROXY") {
         let http_client = reqwest::Client::builder()
@@ -234,7 +239,7 @@ pub fn test_client() -> MesaClient {
         builder = builder.with_client(client);
     }
 
-    builder.build()
+    builder.build().expect("failed to build MesaClient")
 }
 
 // ---------------------------------------------------------------------------
