@@ -70,8 +70,7 @@ pub async fn create_seeded_repo(config: &Configuration, org: &str, name: &str) -
         .bearer_access_token
         .as_deref()
         .expect("missing API key");
-    let git_host =
-        env::var("MESA_TEST_GIT_HOST").unwrap_or_else(|_| "depot.mesa.dev".to_string());
+    let git_host = env::var("MESA_TEST_GIT_HOST").unwrap_or_else(|_| "depot.mesa.dev".to_string());
     let remote_url = format!("https://{api_key}@{git_host}/{org}/{name}.git");
 
     let tmp = tempfile::tempdir().expect("failed to create tempdir");

@@ -89,9 +89,7 @@ impl RepoClient<'_> {
     /// # Errors
     ///
     /// Returns an error if the repository metadata cannot be fetched.
-    pub async fn change(
-        &self,
-    ) -> Result<ChangeClient, Error<repos_api::GetByOrgByRepoError>> {
+    pub async fn change(&self) -> Result<ChangeClient, Error<repos_api::GetByOrgByRepoError>> {
         let repo_meta = self.get().await?;
         Ok(ChangeClient::new(
             &self.org.client.grpc_channel,

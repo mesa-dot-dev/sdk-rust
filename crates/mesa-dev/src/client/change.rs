@@ -68,11 +68,7 @@ pub struct ChangeClient {
 
 impl ChangeClient {
     /// Build a `ChangeClient` from a gRPC channel, bearer token, and repo UUID.
-    pub(super) fn new(
-        channel: &Channel,
-        bearer_token: Option<&str>,
-        repo_id: String,
-    ) -> Self {
+    pub(super) fn new(channel: &Channel, bearer_token: Option<&str>, repo_id: String) -> Self {
         let auth_value = bearer_token
             .map(|t| format!("Bearer {t}"))
             .unwrap_or_default();

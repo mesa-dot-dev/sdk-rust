@@ -35,7 +35,9 @@ async fn test_write_then_read(ctx: &mut HlRepoWithCommitContext) {
         .snapshot(&change_id, "Add test-file.txt")
         .await
         .unwrap();
-    let commit_oid = snapshot.commit_oid.expect("snapshot should produce a commit");
+    let commit_oid = snapshot
+        .commit_oid
+        .expect("snapshot should produce a commit");
     let commit_hex = hex::encode(&commit_oid.value);
 
     // 4. Read the file back via REST content API, pinned to the new commit
