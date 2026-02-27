@@ -2,11 +2,11 @@ use crate::common::HlRepoWithCommitContext;
 use mesa_dev::low_level::content::Content;
 use test_context::test_context;
 
-/// Write a file via gRPC (change API), snapshot it to a commit, then read it
-/// back via the REST content API and verify the content matches.
+/// Write a file via gRPC (change API), snapshot it to a commit, move the
+/// bookmark so the commit is visible via REST, then read it back via the
+/// REST content API and verify the content matches.
 #[test_context(HlRepoWithCommitContext)]
 #[tokio::test]
-#[ignore = "snapshot commit tree not yet visible via REST content API"]
 async fn test_write_then_read(ctx: &mut HlRepoWithCommitContext) {
     let org = ctx.client.org(&ctx.org);
     let repo = org.repos().at(&ctx.repo_name);
@@ -40,14 +40,25 @@ async fn test_write_then_read(ctx: &mut HlRepoWithCommitContext) {
         .expect("snapshot should produce a commit");
     let commit_hex = hex::encode(&commit_oid.value);
 
-    // 4. Read the file back via REST content API, pinned to the new commit
+    // 4. Flush: move the "main" bookmark to the new commit so the REST
+    //    content API can resolve it.
+    let ref_info = change_client
+        .resolve_ref("refs/heads/main")
+        .await
+        .expect("resolve_ref should succeed");
+    change_client
+        .move_bookmark("main", &commit_oid.value, ref_info.update_seq)
+        .await
+        .expect("move_bookmark should succeed");
+
+    // 5. Read the file back via REST content API, pinned to the new commit
     let content = repo
         .content()
         .get(Some(&commit_hex), Some("test-file.txt"), None)
         .await
         .expect("get content should succeed for the newly written file");
 
-    // 5. Verify the content matches
+    // 6. Verify the content matches
     match content {
         Content::File(file) => {
             assert_eq!(file.name.as_deref(), Some("test-file.txt"));

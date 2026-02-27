@@ -3,7 +3,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use tonic::service::interceptor::InterceptedService;
 use tonic::transport::Channel;
 
-use crate::grpc::{self, control_service_client::ControlServiceClient};
+use crate::grpc::{
+    self, control_service_client::ControlServiceClient, data_service_client::DataServiceClient,
+};
 
 /// Interceptor that attaches a bearer token to every gRPC request.
 #[derive(Clone, Debug)]
@@ -61,6 +63,7 @@ impl tonic::service::Interceptor for AuthInterceptor {
 #[derive(Debug)]
 pub struct ChangeClient {
     client: ControlServiceClient<InterceptedService<Channel, AuthInterceptor>>,
+    data_client: DataServiceClient<InterceptedService<Channel, AuthInterceptor>>,
     repo_id: String,
     /// Tracks the last applied op id for strict sequencing.
     /// Starts at 0 for a fresh change and is updated after each `apply_ops`.
@@ -83,7 +86,8 @@ impl ChangeClient {
         let interceptor = AuthInterceptor { token };
 
         Self {
-            client: ControlServiceClient::with_interceptor(channel.clone(), interceptor),
+            client: ControlServiceClient::with_interceptor(channel.clone(), interceptor.clone()),
+            data_client: DataServiceClient::with_interceptor(channel.clone(), interceptor),
             repo_id,
             last_op_id: AtomicU64::new(0),
         }
@@ -297,5 +301,64 @@ impl ChangeClient {
             .await?;
 
         Ok(resp.into_inner())
+    }
+
+    /// Move (update) a bookmark to point at a new commit OID.
+    ///
+    /// Use this after [`snapshot`](Self::snapshot) to make the new commit visible
+    /// via the REST content API by updating the ref the bookmark maps to.
+    ///
+    /// `expected_update_seq` is the optimistic concurrency token from a prior
+    /// bookmark response (use `0` if unknown / first update).
+    ///
+    /// # Errors
+    ///
+    /// Returns a gRPC error if the request fails.
+    #[tracing::instrument(skip(self, commit_oid), fields(repo_id = %self.repo_id, bookmark_name), err(Debug))]
+    pub async fn move_bookmark(
+        &self,
+        bookmark_name: &str,
+        commit_oid: &[u8],
+        expected_update_seq: u64,
+    ) -> Result<grpc::MoveBookmarkResponse, tonic::Status> {
+        let resp = self
+            .client
+            .clone()
+            .move_bookmark(grpc::MoveBookmarkRequest {
+                repo_id: self.repo_id.clone(),
+                bookmark_name: bookmark_name.to_owned(),
+                expected_update_seq,
+                new_commit_oid: Some(grpc::CommitOid {
+                    value: commit_oid.to_vec(),
+                }),
+            })
+            .await?;
+
+        Ok(resp.into_inner())
+    }
+
+    /// Resolve a ref name to its current target OID and metadata.
+    ///
+    /// Returns a [`RefInfo`](grpc::RefInfo) containing the ref's `update_seq`,
+    /// which is needed as the optimistic-concurrency token for
+    /// [`move_bookmark`](Self::move_bookmark).
+    ///
+    /// # Errors
+    ///
+    /// Returns a gRPC error if the request fails.
+    #[tracing::instrument(skip(self), fields(repo_id = %self.repo_id, ref_name), err(Debug))]
+    pub async fn resolve_ref(&self, ref_name: &str) -> Result<grpc::RefInfo, tonic::Status> {
+        let resp = self
+            .data_client
+            .clone()
+            .resolve_ref(grpc::ResolveRefRequest {
+                repo_id: self.repo_id.clone(),
+                ref_name: ref_name.to_owned(),
+            })
+            .await?;
+
+        resp.into_inner()
+            .r#ref
+            .ok_or_else(|| tonic::Status::internal("server returned empty ref"))
     }
 }
