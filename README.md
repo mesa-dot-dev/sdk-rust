@@ -1,3 +1,5 @@
+**This repo has been archived and is now kept closed source.**
+
 <div align="center">
   <img src=".github/cover.png" alt="mesa-dev" width="100%" />
 </div>
